@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
@@ -22,7 +21,6 @@ const GameBoard = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
 
-  // Convert difficulty param to key in samplePuzzles
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
       case 'beginner': return 'beginner';
@@ -38,7 +36,6 @@ const GameBoard = () => {
   const difficultyKey = getDifficultyKey();
   const levelIndex = Number(level) - 1;
 
-  // Initialize the game
   useEffect(() => {
     if (samplePuzzles[difficultyKey] && samplePuzzles[difficultyKey][levelIndex]) {
       const initialPuzzle = JSON.parse(JSON.stringify(samplePuzzles[difficultyKey][levelIndex]));
@@ -47,7 +44,6 @@ const GameBoard = () => {
     }
   }, [difficulty, level]);
 
-  // Timer
   useEffect(() => {
     if (isComplete) return;
     
@@ -58,14 +54,12 @@ const GameBoard = () => {
     return () => clearInterval(interval);
   }, [isComplete]);
 
-  // Format time for display
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Handle cell value change
   const handleCellValueChange = (row: number, col: number, value: number | null) => {
     if (fixedCells[row][col]) return;
     
@@ -73,7 +67,6 @@ const GameBoard = () => {
     newPuzzle[row][col] = value;
     setPuzzle(newPuzzle);
     
-    // Check if puzzle is complete
     if (isSudokuComplete(newPuzzle)) {
       setIsComplete(true);
       toast({
@@ -83,7 +76,6 @@ const GameBoard = () => {
     }
   };
 
-  // Handle number pad selection
   const handleNumberSelect = (num: number | null) => {
     if (selectedCell) {
       const { row, col } = selectedCell;
@@ -91,7 +83,6 @@ const GameBoard = () => {
     }
   };
 
-  // Handle hint request
   const handleHintRequest = () => {
     if (!selectedCell) {
       toast({
@@ -113,10 +104,7 @@ const GameBoard = () => {
       return;
     }
     
-    // In a real app, this would calculate the correct value for the selected cell
-    // For now, we'll just use a placeholder value
-    const correctValue = 5; // This would come from the solution
-    
+    const correctValue = 5;
     handleCellValueChange(row, col, correctValue);
     setHintsUsed(hintsUsed + 1);
     
@@ -137,7 +125,8 @@ const GameBoard = () => {
         </Link>
         <Logo size="sm" />
         <Link to="/settings">
-          <CustomButton variant="ghost" size="sm" Icon={Settings} />
+          <CustomButton variant="ghost" size="sm" Icon={Settings}>
+          </CustomButton>
         </Link>
       </header>
       

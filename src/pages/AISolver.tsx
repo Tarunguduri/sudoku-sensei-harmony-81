@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
@@ -166,7 +165,9 @@ const AISolver = () => {
         </Link>
         <Logo size="sm" />
         <Link to="/settings">
-          <CustomButton variant="ghost" size="sm" Icon={Settings} />
+          <CustomButton variant="ghost" size="sm" Icon={Settings}>
+            {/* Empty children */}
+          </CustomButton>
         </Link>
       </header>
       
