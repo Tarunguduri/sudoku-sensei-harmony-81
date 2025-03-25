@@ -11,6 +11,7 @@ interface SudokuCellProps {
   row: number;
   col: number;
   onClick: (row: number, col: number) => void;
+  fontSize?: string;
 }
 
 const SudokuCell: React.FC<SudokuCellProps> = ({
@@ -22,6 +23,7 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
   row,
   col,
   onClick,
+  fontSize = 'text-lg md:text-xl',
 }) => {
   const handleClick = () => {
     onClick(row, col);
@@ -71,9 +73,12 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
           isHighlighted && !isSelected ? "bg-sakura-100" : "bg-white",
         isFixed ? "font-bold text-ink-700" : "text-ink-600",
         hasError && "text-red-500",
-        "text-lg md:text-xl cursor-pointer hover:bg-sakura-50"
+        fontSize,
+        "cursor-pointer hover:bg-sakura-50 active:bg-sakura-100"
       )}
       onClick={handleClick}
+      role="button"
+      aria-label={`Cell at row ${row + 1}, column ${col + 1}${value ? `, value ${value}` : ', empty'}`}
     >
       {value !== null ? value : ''}
     </div>

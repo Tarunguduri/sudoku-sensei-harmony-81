@@ -1,19 +1,51 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SudokuCell from './SudokuCell';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface SudokuBoardProps {
   puzzle: (number | null)[][];
   fixedCells: boolean[][];
   onCellValueChange?: (row: number, col: number, value: number | null) => void;
+  className?: string;
 }
 
 const SudokuBoard: React.FC<SudokuBoardProps> = ({
   puzzle,
   fixedCells,
   onCellValueChange,
+  className,
 }) => {
+  const isMobile = useIsMobile();
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
+  const [boardSize, setBoardSize] = useState<number>(0);
+
+  // Update board size based on screen width
+  useEffect(() => {
+    const updateBoardSize = () => {
+      // Get width of the viewport
+      const viewportWidth = window.innerWidth;
+      // Calculate optimal board size (90% of viewport width for mobile, with a max size)
+      const maxSize = 500; // Maximum board size in pixels
+      let newSize = Math.min(viewportWidth * 0.9, maxSize);
+      
+      // Ensure the board is not too small
+      newSize = Math.max(newSize, 280);
+      
+      setBoardSize(newSize);
+    };
+
+    // Set initial size
+    updateBoardSize();
+    
+    // Update size on window resize
+    window.addEventListener('resize', updateBoardSize);
+    
+    return () => {
+      window.removeEventListener('resize', updateBoardSize);
+    };
+  }, []);
 
   const handleCellClick = (row: number, col: number) => {
     if (!fixedCells[row][col]) {
@@ -93,29 +125,43 @@ const SudokuBoard: React.FC<SudokuBoardProps> = ({
     }
   };
 
+  // Calculate cell size based on board size
+  const cellSize = boardSize / 9;
+  
+  // Cell font size based on cell size
+  const getFontSize = () => {
+    if (cellSize <= 30) return 'text-base';
+    if (cellSize <= 40) return 'text-lg';
+    return 'text-xl md:text-2xl';
+  };
+
   return (
     <div 
-      className="grid grid-cols-9 border-2 border-stone-400 bg-white rounded-lg overflow-hidden shadow-lg"
+      className={cn("relative bg-white border-2 border-stone-400 rounded-lg overflow-hidden shadow-lg", className)}
+      style={{ width: `${boardSize}px`, height: `${boardSize}px` }}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
-      {puzzle.map((row, rowIndex) => (
-        <div key={`row-${rowIndex}`} className="sudoku-row contents">
-          {row.map((cell, colIndex) => (
-            <SudokuCell
-              key={`cell-${rowIndex}-${colIndex}`}
-              value={cell}
-              isFixed={fixedCells[rowIndex][colIndex]}
-              isSelected={selectedCell?.row === rowIndex && selectedCell?.col === colIndex}
-              isHighlighted={isHighlighted(rowIndex, colIndex)}
-              hasError={hasError(rowIndex, colIndex)}
-              row={rowIndex}
-              col={colIndex}
-              onClick={handleCellClick}
-            />
-          ))}
-        </div>
-      ))}
+      <div className="grid grid-cols-9 h-full w-full">
+        {puzzle.map((row, rowIndex) => (
+          <React.Fragment key={`row-${rowIndex}`}>
+            {row.map((cell, colIndex) => (
+              <SudokuCell
+                key={`cell-${rowIndex}-${colIndex}`}
+                value={cell}
+                isFixed={fixedCells[rowIndex][colIndex]}
+                isSelected={selectedCell?.row === rowIndex && selectedCell?.col === colIndex}
+                isHighlighted={isHighlighted(rowIndex, colIndex)}
+                hasError={hasError(rowIndex, colIndex)}
+                row={rowIndex}
+                col={colIndex}
+                onClick={handleCellClick}
+                fontSize={getFontSize()}
+              />
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 };

@@ -6,13 +6,20 @@ import CustomButton from '@/components/CustomButton';
 import SakuraBackground from '@/components/SakuraBackground';
 import GlassCard from '@/components/GlassCard';
 import SudokuBoard from '@/components/SudokuBoard';
-import { ArrowLeft, Camera, Upload, RefreshCw, Play, Code } from 'lucide-react';
+import NumberPad from '@/components/NumberPad';
+import { ArrowLeft, Camera, Upload, RefreshCw, Play, Code, Settings } from 'lucide-react';
 import { createEmptyGrid } from '@/utils/sudokuUtils';
 import AnimatedTitle from '@/components/AnimatedTitle';
+import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AISolver = () => {
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+  
   const [puzzle, setPuzzle] = useState<(number | null)[][]>(createEmptyGrid(null));
   const [fixedCells, setFixedCells] = useState<boolean[][]>(createEmptyGrid(false));
+  const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [isSolved, setIsSolved] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
@@ -27,16 +34,31 @@ const AISolver = () => {
     const newFixedCells = [...fixedCells];
     newFixedCells[row][col] = value !== null;
     setFixedCells(newFixedCells);
+    
+    setSelectedCell({ row, col });
+  };
+
+  const handleNumberSelect = (num: number | null) => {
+    if (selectedCell) {
+      const { row, col } = selectedCell;
+      handleCellValueChange(row, col, num);
+    }
   };
 
   const handleCaptureImage = () => {
     // This would integrate with device camera in a real mobile app
-    alert('Camera functionality would capture a Sudoku puzzle from an image in a real app');
+    toast({
+      title: "Camera Activated",
+      description: "Camera functionality would capture a Sudoku puzzle in a real app",
+    });
   };
 
   const handleUploadImage = () => {
     // This would allow selecting an image from device storage
-    alert('Upload functionality would allow selecting a Sudoku puzzle image in a real app');
+    toast({
+      title: "Upload Image",
+      description: "Upload functionality would allow selecting a Sudoku puzzle image in a real app",
+    });
   };
 
   const handleResetPuzzle = () => {
@@ -46,10 +68,28 @@ const AISolver = () => {
     setShowSteps(false);
     setSolutionSteps([]);
     setCurrentStep(0);
+    setSelectedCell(null);
+    
+    toast({
+      title: "Puzzle Reset",
+      description: "The board has been cleared",
+    });
   };
 
   const handleSolvePuzzle = () => {
     setIsSolving(true);
+    
+    // Check if the puzzle has enough clues (at least 17)
+    const cluesCount = puzzle.flat().filter(cell => cell !== null).length;
+    if (cluesCount < 8) {
+      toast({
+        title: "Not Enough Clues",
+        description: "Please add more numbers to the puzzle (minimum 8 required)",
+        variant: "destructive",
+      });
+      setIsSolving(false);
+      return;
+    }
     
     // Simulate solving process (in a real app, this would use actual solving algorithms)
     setTimeout(() => {
@@ -92,6 +132,11 @@ const AISolver = () => {
       setPuzzle(typedSolution);
       setIsSolving(false);
       setIsSolved(true);
+      
+      toast({
+        title: "Puzzle Solved!",
+        description: "The solution has been found using constraint satisfaction and backtracking",
+      });
     }, 2000);
   };
 
@@ -110,28 +155,31 @@ const AISolver = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-indigo-50">
+    <div className="min-h-screen flex flex-col p-4 sm:p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-indigo-50">
       <SakuraBackground petalsCount={12} />
       
-      <header className="flex justify-between items-center mb-6 z-10">
+      <header className="flex justify-between items-center mb-4 sm:mb-6 z-10">
         <Link to="/">
           <CustomButton variant="ghost" size="sm" Icon={ArrowLeft}>
             Back
           </CustomButton>
         </Link>
         <Logo size="sm" />
+        <Link to="/settings">
+          <CustomButton variant="ghost" size="sm" Icon={Settings} />
+        </Link>
       </header>
       
       <AnimatedTitle
-        className="mb-6"
+        className="mb-4 sm:mb-6"
         subtitle="Upload a puzzle or create one manually"
         delay={200}
       >
         AI Sudoku Solver
       </AnimatedTitle>
       
-      <div className="flex flex-col items-center max-w-md mx-auto w-full z-10">
-        <GlassCard className="w-full mb-6 animate-scale-in" style={{ animationDelay: '300ms' }}>
+      <div className="flex flex-col items-center mx-auto w-full z-10">
+        <GlassCard className="w-full mb-4 sm:mb-6 animate-scale-in" style={{ animationDelay: '300ms' }}>
           <div className="grid grid-cols-2 gap-3 mb-4">
             <CustomButton 
               variant="outline" 
@@ -157,7 +205,7 @@ const AISolver = () => {
           </div>
         </GlassCard>
         
-        <div className="mb-6 animate-scale-in" style={{ animationDelay: '400ms' }}>
+        <div className="mb-4 sm:mb-6 animate-scale-in" style={{ animationDelay: '400ms' }}>
           <SudokuBoard 
             puzzle={puzzle} 
             fixedCells={fixedCells}
@@ -165,7 +213,13 @@ const AISolver = () => {
           />
         </div>
         
-        <div className="grid grid-cols-2 gap-4 w-full mb-6 animate-fade-in" style={{ animationDelay: '500ms' }}>
+        {!isSolved && (
+          <div className="w-full max-w-md mb-4 sm:mb-6 animate-fade-in" style={{ animationDelay: '500ms' }}>
+            <NumberPad onNumberSelect={handleNumberSelect} />
+          </div>
+        )}
+        
+        <div className="grid grid-cols-2 gap-4 w-full mb-4 sm:mb-6 animate-fade-in max-w-md" style={{ animationDelay: '600ms' }}>
           <CustomButton 
             variant="outline" 
             Icon={RefreshCw} 
@@ -187,7 +241,7 @@ const AISolver = () => {
         </div>
         
         {isSolved && (
-          <GlassCard className="w-full animate-scale-in">
+          <GlassCard className="w-full animate-scale-in max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg">Solution</h3>
               

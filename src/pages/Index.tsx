@@ -7,10 +7,12 @@ import AnimatedTitle from '@/components/AnimatedTitle';
 import CustomButton from '@/components/CustomButton';
 import GlassCard from '@/components/GlassCard';
 import { Play, Brain, Book, Settings } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -71,6 +73,7 @@ const Index = () => {
               variant="outline" 
               Icon={Book}
               fullWidth
+              onClick={() => navigate('/how-to-play')}
             >
               How to Play
             </CustomButton>
@@ -79,6 +82,7 @@ const Index = () => {
               variant="outline" 
               Icon={Settings}
               fullWidth
+              onClick={() => navigate('/settings')}
             >
               Settings
             </CustomButton>

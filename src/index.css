@@ -103,7 +103,11 @@
 
   /* Glass morphism styles */
   .glass {
-    @apply bg-white bg-opacity-10 backdrop-blur-lg shadow-glass border border-white border-opacity-20 transition-all duration-300;
+    @apply bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 transition-all duration-300;
+  }
+  
+  .dark .glass {
+    @apply bg-ink-900 bg-opacity-30 backdrop-blur-lg border border-ink-700 border-opacity-30;
   }
   
   .glass:hover {
@@ -128,6 +132,11 @@
     z-index: 0;
   }
 
+  .dark .sakura-petal {
+    background-color: rgba(253, 208, 224, 0.7);
+    filter: brightness(0.8);
+  }
+
   .sakura-petal::before {
     content: '';
     position: absolute;
@@ -141,37 +150,73 @@
     transform: rotate(45deg);
   }
 
+  .dark .sakura-petal::before {
+    background-color: rgba(253, 208, 224, 0.6);
+  }
+
   /* Game board styles */
   .sudoku-cell {
-    @apply flex items-center justify-center border border-stone-200 font-mono text-lg transition-all duration-200 ease-out;
+    @apply flex items-center justify-center border border-stone-200 font-mono transition-all duration-200 ease-out;
+  }
+  
+  .dark .sudoku-cell {
+    @apply border-stone-700;
   }
   
   .sudoku-cell:nth-child(3n):not(:last-child) {
     @apply border-r-2 border-r-stone-400;
   }
 
+  .dark .sudoku-cell:nth-child(3n):not(:last-child) {
+    @apply border-r-stone-500;
+  }
+
   .sudoku-cell:nth-child(9n) {
     @apply border-r-stone-200;
+  }
+
+  .dark .sudoku-cell:nth-child(9n) {
+    @apply border-r-stone-700;
   }
 
   .sudoku-row:nth-child(3n):not(:last-child) .sudoku-cell {
     @apply border-b-2 border-b-stone-400;
   }
 
+  .dark .sudoku-row:nth-child(3n):not(:last-child) .sudoku-cell {
+    @apply border-b-stone-500;
+  }
+
   .sudoku-cell.highlighted {
     @apply bg-sakura-100;
+  }
+
+  .dark .sudoku-cell.highlighted {
+    @apply bg-sakura-900 bg-opacity-25;
   }
 
   .sudoku-cell.selected {
     @apply bg-sakura-200 shadow-inner-glass;
   }
 
+  .dark .sudoku-cell.selected {
+    @apply bg-sakura-800 bg-opacity-35;
+  }
+
   .sudoku-cell.fixed {
     @apply font-bold text-ink-700;
   }
 
+  .dark .sudoku-cell.fixed {
+    @apply text-sakura-300;
+  }
+
   .sudoku-cell.error {
     @apply bg-destructive/20 text-destructive;
+  }
+
+  .dark .sudoku-cell.error {
+    @apply bg-destructive/30 text-red-400;
   }
 
   @keyframes sakura-float {
@@ -197,6 +242,21 @@
   }
 }
 
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .sudoku-cell {
+    @apply text-lg;
+  }
+  
+  h1, h2, h3 {
+    @apply text-base;
+  }
+  
+  .number-pad button {
+    @apply min-h-[48px] min-w-[48px];
+  }
+}
+
 /* For the sakura animation on the home page and level selection */
 .sakura-container {
   position: fixed;
@@ -207,4 +267,23 @@
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+}
+
+/* Dark mode specific animations */
+.dark .sakura-container {
+  opacity: 0.7;
+}
+
+@keyframes sakura-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
 }

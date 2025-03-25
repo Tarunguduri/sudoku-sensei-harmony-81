@@ -10,6 +10,8 @@ import GameBoard from "./pages/GameBoard";
 import NotFound from "./pages/NotFound";
 import LevelCategories from "./pages/LevelCategories";
 import AISolver from "./pages/AISolver";
+import HowToPlay from "./pages/HowToPlay";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
           <Route path="/levels/:category" element={<Levels />} />
           <Route path="/play/:difficulty/:level" element={<GameBoard />} />
           <Route path="/ai-solver" element={<AISolver />} />
+          <Route path="/how-to-play" element={<HowToPlay />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
