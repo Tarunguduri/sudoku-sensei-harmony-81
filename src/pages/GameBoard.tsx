@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
@@ -5,9 +6,10 @@ import CustomButton from '@/components/CustomButton';
 import SudokuBoard from '@/components/SudokuBoard';
 import NumberPad from '@/components/NumberPad';
 import { ArrowLeft, Clock, Star, HelpCircle, Settings } from 'lucide-react';
-import { samplePuzzles, createPuzzleWithFixedCells, isSudokuComplete } from '@/utils/sudokuUtils';
+import { samplePuzzles, createPuzzleWithFixedCells, isSudokuComplete, solveSudoku } from '@/utils/sudokuUtils';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import SakuraBackground from '@/components/SakuraBackground';
 
 const GameBoard = () => {
   const { difficulty, level } = useParams<{ difficulty: string; level: string }>();
@@ -20,6 +22,7 @@ const GameBoard = () => {
   const [timer, setTimer] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [solution, setSolution] = useState<(number | null)[][] | null>(null);
 
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
@@ -41,6 +44,10 @@ const GameBoard = () => {
       const initialPuzzle = JSON.parse(JSON.stringify(samplePuzzles[difficultyKey][levelIndex]));
       setPuzzle(initialPuzzle);
       setFixedCells(createPuzzleWithFixedCells(initialPuzzle));
+      
+      // Calculate solution when puzzle is loaded
+      const solvedPuzzle = solveSudoku(initialPuzzle);
+      setSolution(solvedPuzzle);
     }
   }, [difficulty, level]);
 
@@ -104,7 +111,25 @@ const GameBoard = () => {
       return;
     }
     
-    const correctValue = 5;
+    if (!solution) {
+      toast({
+        title: "Hint Not Available",
+        description: "Solution is not available",
+        variant: "default",
+      });
+      return;
+    }
+    
+    const correctValue = solution[row][col];
+    if (correctValue === null) {
+      toast({
+        title: "Hint Not Available",
+        description: "Could not determine the correct value for this cell",
+        variant: "default",
+      });
+      return;
+    }
+    
     handleCellValueChange(row, col, correctValue);
     setHintsUsed(hintsUsed + 1);
     
@@ -116,7 +141,9 @@ const GameBoard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-4 sm:p-6 overflow-hidden bg-stone-50">
+    <div className="min-h-screen flex flex-col p-4 sm:p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
+      <SakuraBackground petalsCount={20} />
+      
       <header className="flex justify-between items-center mb-4 sm:mb-6 z-10">
         <Link to={`/levels/${difficulty}`}>
           <CustomButton variant="ghost" size="sm" Icon={ArrowLeft}>
@@ -130,13 +157,13 @@ const GameBoard = () => {
         </Link>
       </header>
       
-      <div className="text-center mb-3 sm:mb-4 animate-fade-in">
+      <div className="text-center mb-3 sm:mb-4 animate-fade-in z-10">
         <h1 className="text-xl sm:text-2xl font-bold capitalize">
           {difficulty} - Level {level}
         </h1>
       </div>
       
-      <div className="flex justify-center space-x-4 sm:space-x-6 mb-3 sm:mb-4 animate-fade-in" style={{ animationDelay: '200ms' }}>
+      <div className="flex justify-center space-x-4 sm:space-x-6 mb-3 sm:mb-4 animate-fade-in z-10" style={{ animationDelay: '200ms' }}>
         <div className="flex items-center">
           <Clock className="w-5 h-5 mr-2 text-stone-500" />
           <span className="font-mono">{formatTime(timer)}</span>
@@ -148,7 +175,7 @@ const GameBoard = () => {
         </div>
       </div>
       
-      <div className="flex flex-col items-center mx-auto w-full animate-scale-in" style={{ animationDelay: '300ms' }}>
+      <div className="flex flex-col items-center mx-auto w-full animate-scale-in z-10" style={{ animationDelay: '300ms' }}>
         {puzzle.length > 0 && fixedCells.length > 0 && (
           <SudokuBoard
             puzzle={puzzle}

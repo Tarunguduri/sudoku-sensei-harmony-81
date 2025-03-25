@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Volume2, VolumeX, Sun, Moon, FileText, Languages } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX, Sun, Moon, FileText, Languages, Music } from 'lucide-react';
 import Logo from '@/components/Logo';
 import CustomButton from '@/components/CustomButton';
 import SakuraBackground from '@/components/SakuraBackground';
@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTheme } from '@/hooks/use-theme';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -20,9 +22,63 @@ const Settings = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [volume, setVolume] = useState(80);
   const [language, setLanguage] = useState('english');
+  const [selectedMusic, setSelectedMusic] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const musicOptions = [
+    { id: 'sakura', name: 'Sakura Dreams', src: '/audio/sakura-dreams.mp3' },
+    { id: 'zen', name: 'Zen Garden', src: '/audio/zen-garden.mp3' },
+    { id: 'koto', name: 'Koto Melody', src: '/audio/koto-melody.mp3' },
+  ];
+
+  useEffect(() => {
+    // Load saved settings from localStorage
+    const savedSound = localStorage.getItem('soundEnabled');
+    const savedVolume = localStorage.getItem('volume');
+    const savedMusic = localStorage.getItem('selectedMusic');
+    
+    if (savedSound) setSoundEnabled(savedSound === 'true');
+    if (savedVolume) setVolume(parseInt(savedVolume));
+    if (savedMusic) setSelectedMusic(savedMusic);
+    
+    // Initialize audio element
+    audioRef.current = new Audio();
+    
+    // Load saved music if available
+    if (savedMusic && soundEnabled) {
+      const musicTrack = musicOptions.find(track => track.id === savedMusic);
+      if (musicTrack) {
+        audioRef.current.src = musicTrack.src;
+        audioRef.current.loop = true;
+        audioRef.current.volume = parseInt(savedVolume || '80') / 100;
+      }
+    }
+    
+    return () => {
+      // Clean up audio when component unmounts
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSoundToggle = (checked: boolean) => {
     setSoundEnabled(checked);
+    localStorage.setItem('soundEnabled', checked.toString());
+    
+    if (checked && selectedMusic && audioRef.current) {
+      audioRef.current.volume = volume / 100;
+      audioRef.current.play().catch(error => {
+        console.error('Audio playback failed:', error);
+      });
+      setIsPlaying(true);
+    } else if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+    
     toast({
       title: checked ? 'Sound Enabled' : 'Sound Disabled',
       description: checked ? 'Game sounds are now on' : 'Game sounds are now off',
@@ -40,6 +96,11 @@ const Settings = () => {
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseInt(e.target.value);
     setVolume(newVolume);
+    localStorage.setItem('volume', newVolume.toString());
+    
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume / 100;
+    }
   };
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -49,10 +110,49 @@ const Settings = () => {
       description: `Language set to ${e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)}`,
     });
   };
+  
+  const handleMusicSelect = (value: string) => {
+    setSelectedMusic(value);
+    localStorage.setItem('selectedMusic', value);
+    
+    if (soundEnabled && audioRef.current) {
+      const musicTrack = musicOptions.find(track => track.id === value);
+      if (musicTrack) {
+        audioRef.current.src = musicTrack.src;
+        audioRef.current.loop = true;
+        audioRef.current.volume = volume / 100;
+        audioRef.current.play().catch(error => {
+          console.error('Audio playback failed:', error);
+        });
+        setIsPlaying(true);
+      }
+    }
+    
+    toast({
+      title: 'Music Selected',
+      description: `${musicOptions.find(track => track.id === value)?.name} will now play in the background`,
+    });
+  };
+  
+  const togglePlayback = () => {
+    if (!selectedMusic || !soundEnabled) return;
+    
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error('Audio playback failed:', error);
+        });
+        setIsPlaying(true);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
-      <SakuraBackground petalsCount={10} />
+      <SakuraBackground petalsCount={16} />
       
       <header className="flex justify-between items-center mb-6 z-10">
         <Link to="/">
@@ -64,7 +164,7 @@ const Settings = () => {
       </header>
       
       <AnimatedTitle
-        className="mb-6"
+        className="mb-6 z-10"
         subtitle="Customize your experience"
         delay={200}
       >
@@ -94,19 +194,55 @@ const Settings = () => {
             </div>
             
             {soundEnabled && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span>Volume</span>
-                  <span className="text-sm text-stone-500 dark:text-stone-400">{volume}%</span>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>Volume</span>
+                    <span className="text-sm text-stone-500 dark:text-stone-400">{volume}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    className="w-full h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer accent-sakura-500"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  className="w-full h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer accent-sakura-500"
-                />
+                
+                <div className="space-y-2">
+                  <div className="flex items-center mb-2">
+                    <Music className="w-5 h-5 mr-2 text-sakura-500" />
+                    <span>Background Music</span>
+                  </div>
+                  
+                  <RadioGroup
+                    value={selectedMusic || ''}
+                    onValueChange={handleMusicSelect}
+                    className="space-y-3"
+                  >
+                    {musicOptions.map((option) => (
+                      <div key={option.id} className="flex items-center space-x-2">
+                        <RadioGroupItem value={option.id} id={option.id} />
+                        <Label htmlFor={option.id} className="cursor-pointer">
+                          {option.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                  
+                  {selectedMusic && (
+                    <CustomButton 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={togglePlayback}
+                      className="mt-2"
+                      disabled={!soundEnabled}
+                    >
+                      {isPlaying ? 'Pause' : 'Play'} Preview
+                    </CustomButton>
+                  )}
+                </div>
               </div>
             )}
           </div>
