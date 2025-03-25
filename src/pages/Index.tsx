@@ -6,7 +6,7 @@ import SakuraBackground from '@/components/SakuraBackground';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import CustomButton from '@/components/CustomButton';
 import GlassCard from '@/components/GlassCard';
-import { Play, Book, Settings } from 'lucide-react';
+import { Play, Brain, Book, Settings } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -21,8 +21,8 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
-      <SakuraBackground petalsCount={20} />
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50">
+      <SakuraBackground petalsCount={25} />
       
       <div className="absolute top-6 left-6 z-10 opacity-0 animate-fade-in" style={{ animationDelay: '400ms' }}>
         <Logo />
@@ -31,26 +31,42 @@ const Index = () => {
       <div className="max-w-md w-full z-10 space-y-8">
         <AnimatedTitle 
           className="mb-10"
-          subtitle="Challenge your mind with Sudoku puzzles"
+          subtitle="Challenge your mind with traditional Japanese puzzles"
           delay={100}
         >
           <span className="text-ink-900">Sudoku</span> <span className="text-sakura-500">Sensei</span>
         </AnimatedTitle>
         
         <GlassCard 
-          className="space-y-4 opacity-0 animate-scale-in"
+          className="space-y-6 opacity-0 animate-scale-in"
           style={{ animationDelay: '500ms' }}
         >
+          <div className="text-center text-sm text-stone-600 mb-2">
+            <p className="font-serif italic">数独先生</p>
+            <p>Choose your path to mastery</p>
+          </div>
+          
           <CustomButton 
             fullWidth 
             size="lg" 
             Icon={Play}
             onClick={() => navigate('/levels')}
+            className="bg-sakura-500 hover:bg-sakura-600"
           >
-            Start Game
+            Play Game
           </CustomButton>
           
-          <div className="grid grid-cols-2 gap-4">
+          <CustomButton 
+            fullWidth 
+            size="lg" 
+            Icon={Brain}
+            onClick={() => navigate('/ai-solver')}
+            className="bg-indigo-500 hover:bg-indigo-600"
+          >
+            AI Solver
+          </CustomButton>
+          
+          <div className="grid grid-cols-2 gap-4 pt-2">
             <CustomButton 
               variant="outline" 
               Icon={Book}
