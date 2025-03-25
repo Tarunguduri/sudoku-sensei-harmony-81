@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Volume2, VolumeX, Sun, Moon, FileText, Languages, Music } from 'lucide-react';
@@ -33,7 +32,6 @@ const Settings = () => {
   ];
 
   useEffect(() => {
-    // Load saved settings from localStorage
     const savedSound = localStorage.getItem('soundEnabled');
     const savedVolume = localStorage.getItem('volume');
     const savedMusic = localStorage.getItem('selectedMusic');
@@ -42,10 +40,8 @@ const Settings = () => {
     if (savedVolume) setVolume(parseInt(savedVolume));
     if (savedMusic) setSelectedMusic(savedMusic);
     
-    // Initialize audio element
     audioRef.current = new Audio();
     
-    // Load saved music if available
     if (savedMusic && soundEnabled) {
       const musicTrack = musicOptions.find(track => track.id === savedMusic);
       if (musicTrack) {
@@ -56,7 +52,6 @@ const Settings = () => {
     }
     
     return () => {
-      // Clean up audio when component unmounts
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -152,7 +147,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen flex flex-col p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
-      <SakuraBackground petalsCount={16} />
+      <SakuraBackground petalsCount={16} showTree={true} />
       
       <header className="flex justify-between items-center mb-6 z-10">
         <Link to="/">
@@ -172,7 +167,6 @@ const Settings = () => {
       </AnimatedTitle>
       
       <div className="flex flex-col items-center max-w-md mx-auto w-full space-y-6 z-10 pb-8">
-        {/* Sound Settings */}
         <GlassCard className="w-full animate-scale-in" style={{ animationDelay: '300ms' }}>
           <h2 className="text-xl font-bold mb-4 flex items-center">
             {soundEnabled ? (
@@ -248,7 +242,6 @@ const Settings = () => {
           </div>
         </GlassCard>
         
-        {/* Appearance Settings */}
         <GlassCard className="w-full animate-scale-in" style={{ animationDelay: '400ms' }}>
           <h2 className="text-xl font-bold mb-4 flex items-center">
             {theme === 'dark' ? (
@@ -269,7 +262,6 @@ const Settings = () => {
           </div>
         </GlassCard>
         
-        {/* Language Settings */}
         <GlassCard className="w-full animate-scale-in" style={{ animationDelay: '500ms' }}>
           <h2 className="text-xl font-bold mb-4 flex items-center">
             <Languages className="w-5 h-5 mr-2 text-indigo-500 dark:text-indigo-400" />
@@ -286,7 +278,6 @@ const Settings = () => {
           </select>
         </GlassCard>
         
-        {/* About Section */}
         <GlassCard className="w-full animate-scale-in" style={{ animationDelay: '600ms' }}>
           <h2 className="text-xl font-bold mb-4 flex items-center">
             <FileText className="w-5 h-5 mr-2 text-stone-500 dark:text-stone-400" />

@@ -71,7 +71,7 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
         getBorderStyles(),
         isSelected ? "bg-sakura-200 shadow-inner" : 
           isHighlighted && !isSelected ? "bg-sakura-100" : "bg-white",
-        isFixed ? "font-bold text-ink-700" : "text-ink-600",
+        isFixed ? "font-bold text-ink-700 dark:text-ink-300" : "text-ink-600 dark:text-ink-300",
         hasError && "text-red-500",
         fontSize,
         "cursor-pointer hover:bg-sakura-50 active:bg-sakura-100"

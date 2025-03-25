@@ -5,11 +5,12 @@ import Logo from '@/components/Logo';
 import CustomButton from '@/components/CustomButton';
 import SudokuBoard from '@/components/SudokuBoard';
 import NumberPad from '@/components/NumberPad';
-import { ArrowLeft, Clock, Star, HelpCircle, Settings } from 'lucide-react';
+import { ArrowLeft, Clock, Star, HelpCircle, Settings, Trophy } from 'lucide-react';
 import { samplePuzzles, createPuzzleWithFixedCells, isSudokuComplete, solveSudoku } from '@/utils/sudokuUtils';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SakuraBackground from '@/components/SakuraBackground';
+import GlassCard from '@/components/GlassCard';
 
 const GameBoard = () => {
   const { difficulty, level } = useParams<{ difficulty: string; level: string }>();
@@ -23,6 +24,7 @@ const GameBoard = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [solution, setSolution] = useState<(number | null)[][] | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
@@ -76,6 +78,7 @@ const GameBoard = () => {
     
     if (isSudokuComplete(newPuzzle)) {
       setIsComplete(true);
+      setShowSolution(true);
       toast({
         title: "Puzzle Complete!",
         description: `Great job! You solved the puzzle in ${formatTime(timer)}`,
@@ -140,9 +143,25 @@ const GameBoard = () => {
     });
   };
 
+  const toggleSolution = () => {
+    if (!isComplete && !showSolution) {
+      toast({
+        title: "Are you sure?",
+        description: "Viewing the solution will mark the puzzle as incomplete",
+        variant: "default",
+      });
+    }
+    
+    setShowSolution(!showSolution);
+    
+    if (!showSolution && solution) {
+      setPuzzle(solution);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col p-4 sm:p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
-      <SakuraBackground petalsCount={20} />
+      <SakuraBackground petalsCount={20} showTree={true} />
       
       <header className="flex justify-between items-center mb-4 sm:mb-6 z-10">
         <Link to={`/levels/${difficulty}`}>
@@ -153,6 +172,7 @@ const GameBoard = () => {
         <Logo size="sm" />
         <Link to="/settings">
           <CustomButton variant="ghost" size="sm" Icon={Settings}>
+            {/* Empty to match the other side */}
           </CustomButton>
         </Link>
       </header>
@@ -179,7 +199,7 @@ const GameBoard = () => {
         {puzzle.length > 0 && fixedCells.length > 0 && (
           <SudokuBoard
             puzzle={puzzle}
-            fixedCells={fixedCells}
+            fixedCells={showSolution ? createEmptyGrid(false) : fixedCells}
             onCellValueChange={(row, col, value) => {
               handleCellValueChange(row, col, value);
               setSelectedCell({ row, col });
@@ -188,18 +208,48 @@ const GameBoard = () => {
           />
         )}
         
-        <div className="w-full max-w-md mb-4 sm:mb-6">
-          <NumberPad onNumberSelect={handleNumberSelect} />
-        </div>
+        {!isComplete && !showSolution && (
+          <div className="w-full max-w-md mb-4 sm:mb-6">
+            <NumberPad onNumberSelect={handleNumberSelect} />
+          </div>
+        )}
         
-        <div className="flex justify-center">
+        <div className="flex justify-center space-x-3">
           <CustomButton variant="outline" Icon={HelpCircle} onClick={handleHintRequest}>
             Hint
           </CustomButton>
+          
+          {solution && (
+            <CustomButton 
+              variant={showSolution ? "default" : "outline"} 
+              Icon={Trophy} 
+              onClick={toggleSolution}
+            >
+              {showSolution ? "Hide Solution" : "Show Solution"}
+            </CustomButton>
+          )}
         </div>
+        
+        {isComplete && (
+          <GlassCard className="w-full max-w-md mt-6 animate-scale-in">
+            <div className="text-center py-2">
+              <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mb-2">
+                Puzzle Completed!
+              </h3>
+              <p className="text-sm">
+                Time: {formatTime(timer)} • Hints Used: {hintsUsed}
+              </p>
+            </div>
+          </GlassCard>
+        )}
       </div>
     </div>
   );
+};
+
+// Helper function to create an empty grid
+const createEmptyGrid = <T extends unknown>(defaultValue: T): T[][] => {
+  return Array(9).fill(null).map(() => Array(9).fill(defaultValue));
 };
 
 export default GameBoard;

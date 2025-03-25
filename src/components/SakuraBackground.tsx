@@ -5,12 +5,14 @@ interface SakuraBackgroundProps {
   petalsCount?: number;
   animationSpeed?: number;
   petalsSize?: 'small' | 'medium' | 'large' | 'mixed';
+  showTree?: boolean;
 }
 
 const SakuraBackground: React.FC<SakuraBackgroundProps> = ({ 
   petalsCount = 15,
   animationSpeed = 1,
-  petalsSize = 'mixed'
+  petalsSize = 'mixed',
+  showTree = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -20,6 +22,28 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
 
     // Clear existing petals
     container.innerHTML = '';
+
+    // Add sakura tree if enabled
+    if (showTree) {
+      const tree = document.createElement('div');
+      tree.className = 'sakura-tree';
+      container.appendChild(tree);
+      
+      // Add tree branches
+      const branches = document.createElement('div');
+      branches.className = 'sakura-branches';
+      tree.appendChild(branches);
+      
+      // Add blossoms to the tree
+      for (let i = 0; i < 12; i++) {
+        const blossom = document.createElement('div');
+        blossom.className = 'sakura-blossom';
+        blossom.style.left = `${Math.random() * 100}%`;
+        blossom.style.top = `${Math.random() * 50}%`;
+        blossom.style.animationDelay = `${Math.random() * 5}s`;
+        branches.appendChild(blossom);
+      }
+    }
 
     // Create new petals
     for (let i = 0; i < petalsCount; i++) {
@@ -65,7 +89,7 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
         container.innerHTML = '';
       }
     };
-  }, [petalsCount, animationSpeed, petalsSize]);
+  }, [petalsCount, animationSpeed, petalsSize, showTree]);
 
   return (
     <div className="sakura-container" ref={containerRef} />

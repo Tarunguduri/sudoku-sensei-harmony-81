@@ -155,6 +155,73 @@
     background-color: rgba(253, 208, 224, 0.6);
   }
 
+  /* Sakura tree styles */
+  .sakura-tree {
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    width: 120px;
+    height: 300px;
+    z-index: 0;
+    opacity: 0.8;
+  }
+
+  .sakura-branches {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 200px;
+    background: linear-gradient(to top, #6c4a4a, #5a3d3d);
+    border-radius: 10px;
+    overflow: visible;
+  }
+
+  .sakura-branches::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -80px;
+    width: 180px;
+    height: 180px;
+    background-color: rgba(253, 208, 224, 0.8);
+    border-radius: 50% 70% 60% 40%;
+    filter: blur(15px);
+  }
+
+  .sakura-branches::after {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -90px;
+    width: 150px;
+    height: 150px;
+    background-color: rgba(253, 208, 224, 0.7);
+    border-radius: 40% 60% 50% 70%;
+    filter: blur(10px);
+  }
+
+  .sakura-blossom {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #fdd0e0;
+    border-radius: 50%;
+    animation: sakura-blossom-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes sakura-blossom-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+  }
+
   /* Game board styles */
   .sudoku-cell {
     @apply flex items-center justify-center border border-stone-200 font-mono transition-all duration-200 ease-out;

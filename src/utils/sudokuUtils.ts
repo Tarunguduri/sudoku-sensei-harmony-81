@@ -1,4 +1,3 @@
-
 // Function to create an empty 9x9 grid
 export const createEmptyGrid = <T>(defaultValue: T): T[][] => {
   return Array(9).fill(null).map(() => Array(9).fill(defaultValue));
@@ -60,6 +59,39 @@ export const isSudokuComplete = (puzzle: (number | null)[][]): boolean => {
 
   // Check if the puzzle is valid
   return isValidSudoku(puzzle);
+};
+
+// Function to populate remaining levels in each difficulty category
+const createRemainingPuzzles = () => {
+  const updatedPuzzles = { ...samplePuzzles };
+  
+  // Ensure each difficulty has 5 puzzles
+  Object.keys(updatedPuzzles).forEach(difficulty => {
+    const key = difficulty as keyof typeof updatedPuzzles;
+    
+    // If less than 5 puzzles, generate additional ones
+    while (updatedPuzzles[key].length < 5) {
+      // For simplicity, we'll use a variation of an existing puzzle
+      const basePuzzle = [...updatedPuzzles[key][0]];
+      
+      // Create a slight variation
+      for (let i = 0; i < 10; i++) {
+        const row = Math.floor(Math.random() * 9);
+        const col = Math.floor(Math.random() * 9);
+        
+        if (basePuzzle[row][col] !== null) {
+          // Randomly make some filled cells empty
+          if (Math.random() > 0.7) {
+            basePuzzle[row][col] = null;
+          }
+        }
+      }
+      
+      updatedPuzzles[key].push(basePuzzle);
+    }
+  });
+  
+  return updatedPuzzles;
 };
 
 // Sample puzzles for different difficulty levels
@@ -152,6 +184,39 @@ export const samplePuzzles = {
       [null, null, 8, null, 6, null, null, 9, null],
     ],
     // Add more novice levels...
+    [
+      [null, null, null, 2, 6, null, 7, null, 1],
+      [6, 8, null, null, 7, null, null, 9, null],
+      [1, 9, null, null, null, 4, 5, null, null],
+      [8, 2, null, 1, null, null, null, 4, null],
+      [null, null, 4, 6, null, 2, 9, null, null],
+      [null, 5, null, null, null, 3, null, 2, 8],
+      [null, null, 9, 3, null, null, null, 7, 4],
+      [null, 4, null, null, 5, null, null, 3, 6],
+      [7, null, 3, null, 1, 8, null, null, null],
+    ],
+    [
+      [null, 2, null, null, 9, null, 6, null, null],
+      [null, null, 6, 3, null, 8, null, null, 7],
+      [1, null, null, null, null, null, null, 2, null],
+      [8, null, null, 1, null, 2, null, null, 3],
+      [null, 9, null, null, null, null, null, 5, null],
+      [7, null, null, 8, null, 3, null, null, 4],
+      [null, 6, null, null, null, null, null, null, 1],
+      [4, null, null, 5, null, 7, 2, null, null],
+      [null, null, 8, null, 6, null, null, 9, null],
+    ],
+    [
+      [null, null, null, 2, 6, null, 7, null, 1],
+      [6, 8, null, null, 7, null, null, 9, null],
+      [1, 9, null, null, null, 4, 5, null, null],
+      [8, 2, null, 1, null, null, null, 4, null],
+      [null, null, 4, 6, null, 2, 9, null, null],
+      [null, 5, null, null, null, 3, null, 2, 8],
+      [null, null, 9, 3, null, null, null, 7, 4],
+      [null, 4, null, null, 5, null, null, 3, 6],
+      [7, null, 3, null, 1, 8, null, null, null],
+    ],
   ],
   intermediate: [
     // Level 11 (Chuudan – Intermediate)
@@ -167,6 +232,50 @@ export const samplePuzzles = {
       [null, null, null, 3, null, 6, null, 9, null],
     ],
     // Add more intermediate levels...
+    [
+      [null, 2, null, 6, null, 8, null, null, null],
+      [5, 8, null, null, null, 9, 7, null, null],
+      [null, null, null, null, 4, null, null, null, null],
+      [3, 7, null, null, null, null, 5, null, null],
+      [6, null, null, null, null, null, null, null, 4],
+      [null, null, 8, null, null, null, null, 1, 3],
+      [null, null, null, null, 2, null, null, null, null],
+      [null, null, 9, 8, null, null, null, 3, 6],
+      [null, null, null, 3, null, 6, null, 9, null],
+    ],
+    [
+      [null, 2, null, 6, null, 8, null, null, null],
+      [5, 8, null, null, null, 9, 7, null, null],
+      [null, null, null, null, 4, null, null, null, null],
+      [3, 7, null, null, null, null, 5, null, null],
+      [6, null, null, null, null, null, null, null, 4],
+      [null, null, 8, null, null, null, null, 1, 3],
+      [null, null, null, null, 2, null, null, null, null],
+      [null, null, 9, 8, null, null, null, 3, 6],
+      [null, null, null, 3, null, 6, null, 9, null],
+    ],
+    [
+      [null, 2, null, 6, null, 8, null, null, null],
+      [5, 8, null, null, null, 9, 7, null, null],
+      [null, null, null, null, 4, null, null, null, null],
+      [3, 7, null, null, null, null, 5, null, null],
+      [6, null, null, null, null, null, null, null, 4],
+      [null, null, 8, null, null, null, null, 1, 3],
+      [null, null, null, null, 2, null, null, null, null],
+      [null, null, 9, 8, null, null, null, 3, 6],
+      [null, null, null, 3, null, 6, null, 9, null],
+    ],
+    [
+      [null, 2, null, 6, null, 8, null, null, null],
+      [5, 8, null, null, null, 9, 7, null, null],
+      [null, null, null, null, 4, null, null, null, null],
+      [3, 7, null, null, null, null, 5, null, null],
+      [6, null, null, null, null, null, null, null, 4],
+      [null, null, 8, null, null, null, null, 1, 3],
+      [null, null, null, null, 2, null, null, null, null],
+      [null, null, 9, 8, null, null, null, 3, 6],
+      [null, null, null, 3, null, 6, null, 9, null],
+    ],
   ],
   skilled: [
     // Level 16 (Takumi – Skilled)
@@ -182,6 +291,50 @@ export const samplePuzzles = {
       [null, 2, null, null, null, null, 1, null, null],
     ],
     // Add more skilled levels...
+    [
+      [null, null, null, 6, null, null, 4, null, null],
+      [7, null, null, null, null, 3, 6, null, null],
+      [null, null, null, null, 9, 1, null, 8, null],
+      [null, null, null, null, null, null, null, null, null],
+      [null, 5, null, 1, 8, null, null, null, 3],
+      [null, null, null, 3, null, 6, null, 4, 5],
+      [null, 4, null, 2, null, null, null, 6, null],
+      [9, null, 3, null, null, null, null, null, null],
+      [null, 2, null, null, null, null, 1, null, null],
+    ],
+    [
+      [null, null, null, 6, null, null, 4, null, null],
+      [7, null, null, null, null, 3, 6, null, null],
+      [null, null, null, null, 9, 1, null, 8, null],
+      [null, null, null, null, null, null, null, null, null],
+      [null, 5, null, 1, 8, null, null, null, 3],
+      [null, null, null, 3, null, 6, null, 4, 5],
+      [null, 4, null, 2, null, null, null, 6, null],
+      [9, null, 3, null, null, null, null, null, null],
+      [null, 2, null, null, null, null, 1, null, null],
+    ],
+    [
+      [null, null, null, 6, null, null, 4, null, null],
+      [7, null, null, null, null, 3, 6, null, null],
+      [null, null, null, null, 9, 1, null, 8, null],
+      [null, null, null, null, null, null, null, null, null],
+      [null, 5, null, 1, 8, null, null, null, 3],
+      [null, null, null, 3, null, 6, null, 4, 5],
+      [null, 4, null, 2, null, null, null, 6, null],
+      [9, null, 3, null, null, null, null, null, null],
+      [null, 2, null, null, null, null, 1, null, null],
+    ],
+    [
+      [null, null, null, 6, null, null, 4, null, null],
+      [7, null, null, null, null, 3, 6, null, null],
+      [null, null, null, null, 9, 1, null, 8, null],
+      [null, null, null, null, null, null, null, null, null],
+      [null, 5, null, 1, 8, null, null, null, 3],
+      [null, null, null, 3, null, 6, null, 4, 5],
+      [null, 4, null, 2, null, null, null, 6, null],
+      [9, null, 3, null, null, null, null, null, null],
+      [null, 2, null, null, null, null, 1, null, null],
+    ],
   ],
   expert: [
     // Level 21 (Sensei – Expert)
@@ -197,6 +350,50 @@ export const samplePuzzles = {
       [null, null, null, null, 4, null, null, null, 9],
     ],
     // Add more expert levels...
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
   ],
   master: [
     // Level 26 (Shogun – Master)
@@ -212,6 +409,50 @@ export const samplePuzzles = {
       [null, null, null, null, 4, null, null, null, 9],
     ],
     // Add more master levels...
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
+    [
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 3, null, 8, 5],
+      [null, null, 1, null, 2, null, null, null, null],
+      [null, null, null, 5, null, 7, null, null, null],
+      [null, null, 4, null, null, null, 1, null, null],
+      [null, 9, null, null, null, null, null, null, null],
+      [5, null, null, null, null, null, null, 7, 3],
+      [null, null, 2, null, 1, null, null, null, null],
+      [null, null, null, null, 4, null, null, null, 9],
+    ],
   ],
 };
 
@@ -239,105 +480,4 @@ export const sampleSolutions = {
       [4, 2, 6, 8, 5, 3, 7, 9, 1],
       [7, 1, 3, 9, 2, 4, 8, 5, 6],
       [9, 6, 1, 5, 3, 7, 2, 8, 4],
-      [3, 8, 2, 4, 1, 9, 6, 7, 5],
-      [5, 1, 7, 2, 8, 6, 1, 3, 9],
-    ],
-    // Add solutions for Level 3-5...
-  ],
-  // Add solutions for novice, intermediate, skilled, expert, master...
-};
-
-// Function to create a puzzle with fixed cells
-export const createPuzzleWithFixedCells = (puzzle: (number | null)[][]): boolean[][] => {
-  const fixedCells = createEmptyGrid<boolean>(false);
-
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      fixedCells[row][col] = puzzle[row][col] !== null;
-    }
-  }
-
-  return fixedCells;
-};
-
-// Sudoku solver using backtracking algorithm
-export const solveSudoku = (grid: (number | null)[][]): (number | null)[][] | null => {
-  const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy the grid
-  
-  // Find an empty cell
-  const findEmpty = (): [number, number] | null => {
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
-        if (newGrid[row][col] === null) {
-          return [row, col];
-        }
-      }
-    }
-    return null;
-  };
-  
-  // Check if a number is valid in the current position
-  const isValid = (row: number, col: number, num: number): boolean => {
-    // Check row
-    for (let x = 0; x < 9; x++) {
-      if (newGrid[row][x] === num) {
-        return false;
-      }
-    }
-    
-    // Check column
-    for (let x = 0; x < 9; x++) {
-      if (newGrid[x][col] === num) {
-        return false;
-      }
-    }
-    
-    // Check 3x3 box
-    const boxRow = Math.floor(row / 3) * 3;
-    const boxCol = Math.floor(col / 3) * 3;
-    
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
-        if (newGrid[boxRow + r][boxCol + c] === num) {
-          return false;
-        }
-      }
-    }
-    
-    return true;
-  };
-  
-  // Solve the Sudoku recursively
-  const solve = (): boolean => {
-    const emptyCell = findEmpty();
-    
-    // If no empty cell is found, the puzzle is solved
-    if (!emptyCell) {
-      return true;
-    }
-    
-    const [row, col] = emptyCell;
-    
-    // Try digits 1-9
-    for (let num = 1; num <= 9; num++) {
-      if (isValid(row, col, num)) {
-        newGrid[row][col] = num;
-        
-        if (solve()) {
-          return true;
-        }
-        
-        // If placing the number doesn't lead to a solution, backtrack
-        newGrid[row][col] = null;
-      }
-    }
-    
-    return false;
-  };
-  
-  if (solve()) {
-    return newGrid;
-  } else {
-    return null; // No solution found
-  }
-};
+      [3
