@@ -68,6 +68,88 @@ export const createPuzzleWithFixedCells = (puzzle: (number | null)[][]): boolean
   );
 };
 
+// Function to check if it's safe to place a number at a given position
+const isSafe = (puzzle: (number | null)[][], row: number, col: number, num: number): boolean => {
+  // Check row
+  for (let x = 0; x < 9; x++) {
+    if (puzzle[row][x] === num) {
+      return false;
+    }
+  }
+
+  // Check column
+  for (let y = 0; y < 9; y++) {
+    if (puzzle[y][col] === num) {
+      return false;
+    }
+  }
+
+  // Check 3x3 box
+  const boxRow = Math.floor(row / 3) * 3;
+  const boxCol = Math.floor(col / 3) * 3;
+  
+  for (let y = boxRow; y < boxRow + 3; y++) {
+    for (let x = boxCol; x < boxCol + 3; x++) {
+      if (puzzle[y][x] === num) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
+// Function to solve a Sudoku puzzle using backtracking
+export const solveSudoku = (puzzle: (number | null)[][]): (number | null)[][] => {
+  // Create a deep copy of the puzzle to avoid modifying the original
+  const solution = JSON.parse(JSON.stringify(puzzle));
+  
+  const solve = (): boolean => {
+    // Find an empty cell
+    let row = -1;
+    let col = -1;
+    let isEmpty = false;
+    
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (solution[i][j] === null) {
+          row = i;
+          col = j;
+          isEmpty = true;
+          break;
+        }
+      }
+      if (isEmpty) {
+        break;
+      }
+    }
+    
+    // No empty cell found, puzzle is solved
+    if (!isEmpty) {
+      return true;
+    }
+    
+    // Try placing numbers 1-9 in the empty cell
+    for (let num = 1; num <= 9; num++) {
+      if (isSafe(solution, row, col, num)) {
+        solution[row][col] = num;
+        
+        if (solve()) {
+          return true;
+        }
+        
+        // If placing num doesn't lead to a solution, backtrack
+        solution[row][col] = null;
+      }
+    }
+    
+    return false;
+  };
+  
+  solve();
+  return solution;
+};
+
 // Function to populate remaining levels in each difficulty category
 const createRemainingPuzzles = () => {
   const updatedPuzzles = { ...samplePuzzles };
@@ -451,37 +533,4 @@ export const samplePuzzles = {
     ],
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
-    ],
-  ],
-};
-
-// Solutions for the sample puzzles (corresponding to the puzzles above)
-export const sampleSolutions = {
-  beginner: [
-    // Solution for Level 1
-    [
-      [5, 3, 4, 6, 7, 8, 9, 1, 2],
-      [6, 7, 2, 1, 9, 5, 3, 4, 8],
-      [1, 9, 8, 3, 4, 2, 5, 6, 7],
-      [8, 5, 9, 7, 6, 1, 4, 2, 3],
-      [4, 2, 6, 8, 5, 3, 7, 9, 1],
-      [7, 1, 3, 9, 2, 4, 8, 5, 6],
-      [9, 6, 1, 5, 3, 7, 2, 8, 4],
-      [2, 8, 7, 4, 1, 9, 6, 3, 5],
-      [3, 4, 5, 2, 8, 6, 1, 7, 9],
-    ],
-    // Solution for Level 2
-    [
-      [2, 3, 5, 6, 7, 8, 9, 1, 4],
-      [6, 7, 4, 1, 9, 5, 3, 2, 8],
-      [1, 9, 8, 3, 4, 2, 5, 6, 7],
-      [8, 5, 9, 7, 6, 1, 4, 2, 3],
-      [4, 2, 6, 8, 5, 3, 7,
+      [
