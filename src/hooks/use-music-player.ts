@@ -29,10 +29,17 @@ export const useMusicPlayer = () => {
     // Initialize audio object
     if (!audioRef.current) {
       audioRef.current = new Audio();
+      
+      // Add error handling
       audioRef.current.addEventListener('error', (e) => {
         console.error('Audio error:', e);
         setAudioError('Failed to load audio file');
         setIsPlaying(false);
+      });
+      
+      // Add load handling
+      audioRef.current.addEventListener('canplaythrough', () => {
+        setAudioError(null);
       });
     }
     
@@ -46,6 +53,13 @@ export const useMusicPlayer = () => {
         // Auto-play if selected (may be blocked by browser)
         audioRef.current.play().catch(error => {
           console.error('Audio playback failed:', error);
+          if (error.name === 'NotAllowedError') {
+            setAudioError('Browser blocked autoplay. Click play to start music.');
+          } else if (error.name === 'NotSupportedError') {
+            setAudioError('Audio format not supported by your browser.');
+          } else {
+            setAudioError('Failed to play audio: ' + error.message);
+          }
         });
         setIsPlaying(true);
       }
@@ -55,6 +69,7 @@ export const useMusicPlayer = () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.removeEventListener('error', () => {});
+        audioRef.current.removeEventListener('canplaythrough', () => {});
       }
     };
   }, []);
@@ -67,6 +82,7 @@ export const useMusicPlayer = () => {
       audioRef.current.volume = volume / 100;
       audioRef.current.play().catch(error => {
         console.error('Audio playback failed:', error);
+        setAudioError('Failed to play audio: ' + error.message);
       });
       setIsPlaying(true);
     } else if (audioRef.current) {
@@ -93,12 +109,31 @@ export const useMusicPlayer = () => {
     if (soundEnabled && audioRef.current) {
       const musicTrack = musicOptions.find(track => track.id === value);
       if (musicTrack) {
+        // Reset audio element
+        if (audioRef.current.src) {
+          audioRef.current.pause();
+        }
+        
+        // Set new source and play
         audioRef.current.src = musicTrack.src;
         audioRef.current.loop = true;
         audioRef.current.volume = volume / 100;
+        
+        // Test if audio exists
+        audioRef.current.addEventListener('loadeddata', () => {
+          console.log('Audio loaded successfully');
+        });
+        
+        audioRef.current.load();
         audioRef.current.play().catch(error => {
           console.error('Audio playback failed:', error);
-          setAudioError('Failed to play audio');
+          if (error.name === 'NotAllowedError') {
+            setAudioError('Browser blocked autoplay. Click play to start music.');
+          } else if (error.name === 'NotSupportedError') {
+            setAudioError('Audio format not supported by your browser.');
+          } else {
+            setAudioError('Failed to play audio: ' + error.message);
+          }
         });
         setIsPlaying(true);
       }
@@ -115,7 +150,7 @@ export const useMusicPlayer = () => {
       } else {
         audioRef.current.play().catch(error => {
           console.error('Audio playback failed:', error);
-          setAudioError('Failed to play audio');
+          setAudioError('Failed to play audio: ' + error.message);
         });
         setIsPlaying(true);
       }

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Volume2, VolumeX, Music, AlertCircle } from 'lucide-react';
+import { Volume2, VolumeX, Music, AlertCircle, Play, Pause } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -113,8 +113,9 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ animationDelay = '300ms' 
                   onClick={togglePlayback}
                   className="mt-2"
                   disabled={!soundEnabled}
+                  Icon={isPlaying ? Pause : Play}
                 >
-                  {isPlaying ? 'Pause' : 'Play'} Preview
+                  {isPlaying ? 'Pause' : 'Play'} Music
                 </CustomButton>
               )}
             </div>

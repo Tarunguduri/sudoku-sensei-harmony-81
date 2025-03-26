@@ -79,8 +79,12 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
       onClick={handleClick}
       role="button"
       aria-label={`Cell at row ${row + 1}, column ${col + 1}${value ? `, value ${value}` : ', empty'}`}
+      data-value={value || ''}
     >
-      {value !== null ? value : ''}
+      {/* Add explicit text rendering with visible styling */}
+      <span className="block text-center select-none">
+        {value !== null ? value : ''}
+      </span>
     </div>
   );
 };

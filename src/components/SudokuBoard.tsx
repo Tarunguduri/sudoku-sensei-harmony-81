@@ -48,8 +48,14 @@ const SudokuBoard: React.FC<SudokuBoardProps> = ({
   }, []);
 
   const handleCellClick = (row: number, col: number) => {
-    if (!fixedCells[row][col]) {
-      setSelectedCell({ row, col });
+    // Always set selected cell, even for fixed cells (for highlighting purposes)
+    setSelectedCell({ row, col });
+    
+    // Pass selected cell to parent component if needed
+    if (onCellValueChange && !fixedCells[row][col]) {
+      // This is crucial - this notifies the GameBoard which cell is selected
+      // so it can update when number pad is clicked
+      onCellValueChange(row, col, puzzle[row][col]);
     }
   };
 

@@ -18,10 +18,34 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import SakuraBackground from '@/components/SakuraBackground';
 import GlassCard from '@/components/GlassCard';
 
+// Sound effects
+const useSound = () => {
+  const playNumberSelect = () => {
+    const sound = new Audio('/audio/select.mp3');
+    sound.volume = 0.3;
+    sound.play().catch(err => console.log('Audio play failed', err));
+  };
+
+  const playComplete = () => {
+    const sound = new Audio('/audio/complete.mp3');
+    sound.volume = 0.4;
+    sound.play().catch(err => console.log('Audio play failed', err));
+  };
+
+  const playHint = () => {
+    const sound = new Audio('/audio/hint.mp3');
+    sound.volume = 0.3;
+    sound.play().catch(err => console.log('Audio play failed', err));
+  };
+
+  return { playNumberSelect, playComplete, playHint };
+};
+
 const GameBoard = () => {
   const { difficulty, level } = useParams<{ difficulty: string; level: string }>();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { playNumberSelect, playComplete, playHint } = useSound();
   
   const [puzzle, setPuzzle] = useState<(number | null)[][]>([]);
   const [fixedCells, setFixedCells] = useState<boolean[][]>([]);
@@ -102,28 +126,44 @@ const GameBoard = () => {
   };
 
   const handleCellValueChange = (row: number, col: number, value: number | null) => {
+    // Set selectedCell to enable numberpad usage
+    setSelectedCell({ row, col });
+    
     if (fixedCells[row][col]) return;
     
-    // Create a deep copy of the puzzle array
-    const newPuzzle = JSON.parse(JSON.stringify(puzzle));
-    newPuzzle[row][col] = value;
-    setPuzzle(newPuzzle);
-    
-    // Check if the puzzle is complete
-    if (isSudokuComplete(newPuzzle)) {
-      setIsComplete(true);
-      setShowSolution(true);
-      toast({
-        title: "Puzzle Complete!",
-        description: `Great job! You solved the puzzle in ${formatTime(timer)}`,
-      });
+    // Handle value changes only when value is different
+    if (puzzle[row][col] !== value) {
+      // Create a deep copy of the puzzle array
+      const newPuzzle = JSON.parse(JSON.stringify(puzzle));
+      newPuzzle[row][col] = value;
+      setPuzzle(newPuzzle);
+      
+      // Check if the puzzle is complete
+      if (isSudokuComplete(newPuzzle)) {
+        setIsComplete(true);
+        setShowSolution(true);
+        playComplete();
+        toast({
+          title: "Puzzle Complete!",
+          description: `Great job! You solved the puzzle in ${formatTime(timer)}`,
+        });
+      }
     }
   };
 
   const handleNumberSelect = (num: number | null) => {
     if (selectedCell) {
       const { row, col } = selectedCell;
-      handleCellValueChange(row, col, num);
+      if (!fixedCells[row][col]) {
+        handleCellValueChange(row, col, num);
+        playNumberSelect();
+      } else {
+        toast({
+          title: "Fixed Cell",
+          description: "This cell cannot be modified",
+          variant: "default",
+        });
+      }
     } else {
       toast({
         title: "No Cell Selected",
@@ -175,6 +215,7 @@ const GameBoard = () => {
     
     handleCellValueChange(row, col, correctValue);
     setHintsUsed(hintsUsed + 1);
+    playHint();
     
     toast({
       title: "Hint Used",
@@ -201,7 +242,7 @@ const GameBoard = () => {
 
   return (
     <div className="min-h-screen flex flex-col p-4 sm:p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
-      <SakuraBackground petalsCount={20} showTree={true} />
+      <SakuraBackground petalsCount={20} showTree={true} petalsColor="pink" density="normal" />
       
       <header className="flex justify-between items-center mb-4 sm:mb-6 z-10">
         <Link to={`/levels/${difficulty}`}>
@@ -240,10 +281,7 @@ const GameBoard = () => {
           <SudokuBoard
             puzzle={puzzle}
             fixedCells={showSolution ? createEmptySudokuGrid(false) : fixedCells}
-            onCellValueChange={(row, col, value) => {
-              handleCellValueChange(row, col, value);
-              setSelectedCell({ row, col });
-            }}
+            onCellValueChange={handleCellValueChange}
             className="mb-4 sm:mb-6"
           />
         )}
