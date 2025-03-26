@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
@@ -11,7 +10,7 @@ import {
   createPuzzleWithFixedCells, 
   isSudokuComplete, 
   solveSudoku,
-  createEmptyGrid
+  createEmptyGrid as createEmptySudokuGrid
 } from '@/utils/sudoku';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -53,7 +52,6 @@ const GameBoard = () => {
       setPuzzle(initialPuzzle);
       setFixedCells(createPuzzleWithFixedCells(initialPuzzle));
       
-      // Calculate solution when puzzle is loaded
       const solvedPuzzle = solveSudoku(initialPuzzle);
       setSolution(solvedPuzzle);
     }
@@ -205,7 +203,7 @@ const GameBoard = () => {
         {puzzle.length > 0 && fixedCells.length > 0 && (
           <SudokuBoard
             puzzle={puzzle}
-            fixedCells={showSolution ? createEmptyGrid(false) : fixedCells}
+            fixedCells={showSolution ? createEmptySudokuGrid(false) : fixedCells}
             onCellValueChange={(row, col, value) => {
               handleCellValueChange(row, col, value);
               setSelectedCell({ row, col });
@@ -253,7 +251,6 @@ const GameBoard = () => {
   );
 };
 
-// Helper function to create an empty grid
 const createEmptyGrid = <T extends unknown>(defaultValue: T): T[][] => {
   return Array(9).fill(null).map(() => Array(9).fill(defaultValue));
 };

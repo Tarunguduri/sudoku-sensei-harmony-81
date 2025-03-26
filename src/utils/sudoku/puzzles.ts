@@ -1,4 +1,3 @@
-
 import { SudokuGrid, DifficultyLevel } from './types';
 
 // Sample puzzles for different difficulty levels
