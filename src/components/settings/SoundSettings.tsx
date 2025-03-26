@@ -1,20 +1,14 @@
 
 import React from 'react';
-import { Volume2, VolumeX, Music } from 'lucide-react';
+import { Volume2, VolumeX, Music, AlertCircle } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import CustomButton from '@/components/CustomButton';
 import GlassCard from '@/components/GlassCard';
 import { useToast } from '@/hooks/use-toast';
-import { useMusicPlayer } from '@/hooks/use-music-player';
-
-// Define the music options
-const musicOptions = [
-  { id: 'sakura', name: 'Sakura Dreams', src: '/audio/sakura-dreams.mp3' },
-  { id: 'zen', name: 'Zen Garden', src: '/audio/zen-garden.mp3' },
-  { id: 'koto', name: 'Koto Melody', src: '/audio/koto-melody.mp3' },
-];
+import { useMusicPlayer, musicOptions } from '@/hooks/use-music-player';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface SoundSettingsProps {
   animationDelay?: string;
@@ -27,6 +21,7 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ animationDelay = '300ms' 
     volume, 
     selectedMusic, 
     isPlaying,
+    audioError,
     handleSoundToggle,
     handleVolumeChange,
     handleMusicSelect,
@@ -43,6 +38,13 @@ const SoundSettings: React.FC<SoundSettingsProps> = ({ animationDelay = '300ms' 
         )}
         Sound Settings
       </h2>
+      
+      {audioError && (
+        <Alert className="mb-4 bg-red-50 text-red-800 border-red-200">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{audioError}</AlertDescription>
+        </Alert>
+      )}
       
       <div className="space-y-4">
         <div className="flex items-center justify-between">

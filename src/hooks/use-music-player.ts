@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 // Define the music options
-const musicOptions = [
+export const musicOptions = [
   { id: 'sakura', name: 'Sakura Dreams', src: '/audio/sakura-dreams.mp3' },
   { id: 'zen', name: 'Zen Garden', src: '/audio/zen-garden.mp3' },
   { id: 'koto', name: 'Koto Melody', src: '/audio/koto-melody.mp3' },
@@ -14,6 +14,7 @@ export const useMusicPlayer = () => {
   const [selectedMusic, setSelectedMusic] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load saved settings from localStorage
@@ -26,7 +27,14 @@ export const useMusicPlayer = () => {
     if (savedMusic) setSelectedMusic(savedMusic);
     
     // Initialize audio object
-    audioRef.current = new Audio();
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
+        setAudioError('Failed to load audio file');
+        setIsPlaying(false);
+      });
+    }
     
     if (savedMusic && savedSound === 'true') {
       const musicTrack = musicOptions.find(track => track.id === savedMusic);
@@ -46,7 +54,7 @@ export const useMusicPlayer = () => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current = null;
+        audioRef.current.removeEventListener('error', () => {});
       }
     };
   }, []);
@@ -80,6 +88,7 @@ export const useMusicPlayer = () => {
   const handleMusicSelect = (value: string) => {
     setSelectedMusic(value);
     localStorage.setItem('selectedMusic', value);
+    setAudioError(null);
     
     if (soundEnabled && audioRef.current) {
       const musicTrack = musicOptions.find(track => track.id === value);
@@ -89,6 +98,7 @@ export const useMusicPlayer = () => {
         audioRef.current.volume = volume / 100;
         audioRef.current.play().catch(error => {
           console.error('Audio playback failed:', error);
+          setAudioError('Failed to play audio');
         });
         setIsPlaying(true);
       }
@@ -105,6 +115,7 @@ export const useMusicPlayer = () => {
       } else {
         audioRef.current.play().catch(error => {
           console.error('Audio playback failed:', error);
+          setAudioError('Failed to play audio');
         });
         setIsPlaying(true);
       }
@@ -116,6 +127,7 @@ export const useMusicPlayer = () => {
     volume,
     selectedMusic,
     isPlaying,
+    audioError,
     handleSoundToggle,
     handleVolumeChange,
     handleMusicSelect,
