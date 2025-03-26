@@ -509,6 +509,7 @@ export const samplePuzzles = {
       [null, null, 2, null, 1, null, null, null, null],
       [null, null, null, null, 4, null, null, null, 9],
     ],
+    // Add more master levels
     [
       [null, null, null, null, null, null, null, null, null],
       [null, null, null, null, null, 3, null, 8, 5],
@@ -532,5 +533,4 @@ export const samplePuzzles = {
       [null, null, null, null, 4, null, null, null, 9],
     ],
     [
-      [null, null, null, null, null, null, null, null, null],
-      [
+      [null, null, null, null, null, null, null,
