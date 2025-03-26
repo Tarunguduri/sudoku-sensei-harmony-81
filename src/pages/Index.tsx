@@ -24,7 +24,13 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50">
-      <SakuraBackground petalsCount={25} />
+      <SakuraBackground 
+        petalsCount={25} 
+        animationStyle="breeze" 
+        petalsColor="mixed" 
+        density="normal" 
+        interactive={true}
+      />
       
       <div className="absolute top-6 left-6 z-10 opacity-0 animate-fade-in" style={{ animationDelay: '400ms' }}>
         <Logo />

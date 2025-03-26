@@ -14,7 +14,13 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen flex flex-col p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
-      <SakuraBackground petalsCount={16} showTree={true} />
+      <SakuraBackground 
+        petalsCount={16} 
+        showTree={true} 
+        petalsColor="pink"
+        animationStyle="swirl"
+        density="sparse"
+      />
       
       <SettingsHeader />
       

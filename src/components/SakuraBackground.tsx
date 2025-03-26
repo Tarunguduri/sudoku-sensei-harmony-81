@@ -7,6 +7,10 @@ interface SakuraBackgroundProps {
   petalsSize?: 'small' | 'medium' | 'large' | 'mixed';
   showTree?: boolean;
   treePosition?: 'left' | 'right';
+  petalsColor?: 'pink' | 'white' | 'mixed';
+  animationStyle?: 'fall' | 'swirl' | 'breeze';
+  density?: 'sparse' | 'normal' | 'dense';
+  interactive?: boolean;
 }
 
 const SakuraBackground: React.FC<SakuraBackgroundProps> = ({ 
@@ -14,7 +18,11 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
   animationSpeed = 1,
   petalsSize = 'mixed',
   showTree = false,
-  treePosition = 'left'
+  treePosition = 'left',
+  petalsColor = 'pink',
+  animationStyle = 'fall',
+  density = 'normal',
+  interactive = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +32,11 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
 
     // Clear existing petals
     container.innerHTML = '';
+
+    // Adjust petal count based on density
+    let actualPetalCount = petalsCount;
+    if (density === 'sparse') actualPetalCount = Math.max(5, Math.floor(petalsCount * 0.6));
+    if (density === 'dense') actualPetalCount = Math.floor(petalsCount * 1.5);
 
     // Add sakura tree if enabled
     if (showTree) {
@@ -50,6 +63,16 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
       for (let i = 0; i < 15; i++) {
         const blossom = document.createElement('div');
         blossom.className = 'sakura-blossom';
+        
+        // Apply petal color
+        if (petalsColor === 'white') {
+          blossom.style.backgroundColor = '#fff';
+          blossom.style.opacity = '0.8';
+        } else if (petalsColor === 'mixed') {
+          blossom.style.backgroundColor = Math.random() > 0.5 ? '#fdd0e0' : '#fff';
+          blossom.style.opacity = `${0.7 + Math.random() * 0.3}`;
+        }
+        
         blossom.style.left = `${Math.random() * 100}%`;
         blossom.style.top = `${Math.random() * 80}%`;
         blossom.style.animationDelay = `${Math.random() * 5}s`;
@@ -58,9 +81,16 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
     }
 
     // Create new petals
-    for (let i = 0; i < petalsCount; i++) {
+    for (let i = 0; i < actualPetalCount; i++) {
       const petal = document.createElement('div');
       petal.className = 'sakura-petal';
+      
+      // Apply animation styles
+      if (animationStyle === 'swirl') {
+        petal.classList.add('sakura-swirl');
+      } else if (animationStyle === 'breeze') {
+        petal.classList.add('sakura-breeze');
+      }
       
       // Random position
       petal.style.left = `${Math.random() * 100}%`;
@@ -92,8 +122,47 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
       // Random rotation
       petal.style.transform = `rotate(${Math.random() * 360}deg)`;
       
+      // Apply petal color
+      if (petalsColor === 'white') {
+        petal.style.backgroundColor = '#fff';
+        petal.style.opacity = '0.8';
+      } else if (petalsColor === 'mixed') {
+        petal.style.backgroundColor = Math.random() > 0.5 ? '#fdd0e0' : '#fff';
+        petal.style.opacity = `${0.7 + Math.random() * 0.3}`;
+      }
+      
+      // Interactive elements
+      if (interactive) {
+        petal.classList.add('interactive');
+      }
+      
       // Add to container
       container.appendChild(petal);
+    }
+
+    // Add interactive event listeners if enabled
+    if (interactive && container) {
+      const handleMouseMove = (e: MouseEvent) => {
+        const petals = container.querySelectorAll('.sakura-petal.interactive');
+        const mouseX = e.clientX / window.innerWidth;
+        const mouseY = e.clientY / window.innerHeight;
+        
+        petals.forEach((petal: Element) => {
+          const randomFactor = Math.random() * 20 - 10;
+          if (petal instanceof HTMLElement) {
+            petal.style.transform = `translate(${randomFactor * mouseX}px, ${randomFactor * mouseY}px) rotate(${Math.random() * 360}deg)`;
+          }
+        });
+      };
+      
+      document.addEventListener('mousemove', handleMouseMove);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        if (container) {
+          container.innerHTML = '';
+        }
+      };
     }
 
     return () => {
@@ -101,7 +170,7 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
         container.innerHTML = '';
       }
     };
-  }, [petalsCount, animationSpeed, petalsSize, showTree, treePosition]);
+  }, [petalsCount, animationSpeed, petalsSize, showTree, treePosition, petalsColor, animationStyle, density, interactive]);
 
   return (
     <div className="sakura-container" ref={containerRef} />
