@@ -7,11 +7,12 @@ import SakuraBackground from '@/components/SakuraBackground';
 import GlassCard from '@/components/GlassCard';
 import SudokuBoard from '@/components/SudokuBoard';
 import NumberPad from '@/components/NumberPad';
-import { ArrowLeft, Camera, Upload, RefreshCw, Play, Code, Settings } from 'lucide-react';
-import { createEmptyGrid, solveSudoku } from '@/utils/sudokuUtils';
+import { ArrowLeft, RefreshCw, Play, Code, Settings } from 'lucide-react';
+import { createEmptyGrid, solveSudoku } from '@/utils/sudoku';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ImageInputOptions from '@/components/AISolver/ImageInputOptions';
 
 const AISolver = () => {
   const { toast } = useToast();
@@ -55,32 +56,46 @@ const AISolver = () => {
         description: "Please allow camera access to take a photo of a Sudoku puzzle",
       });
       
-      // In a production app, we would implement actual camera capture here
-      // For now, we'll simulate with a mock puzzle
-      setTimeout(() => {
-        const mockPuzzle = [
-          [5, 3, null, null, 7, null, null, null, null],
-          [6, null, null, 1, 9, 5, null, null, null],
-          [null, 9, 8, null, null, null, null, 6, null],
-          [8, null, null, null, 6, null, null, null, 3],
-          [4, null, null, 8, null, 3, null, null, 1],
-          [7, null, null, null, 2, null, null, null, 6],
-          [null, 6, null, null, null, null, 2, 8, null],
-          [null, null, null, 4, 1, 9, null, null, 5],
-          [null, null, null, null, 8, null, null, 7, 9],
-        ];
-        
-        setPuzzle(mockPuzzle);
-        const newFixedCells = mockPuzzle.map(row => 
-          row.map(cell => cell !== null)
-        );
-        setFixedCells(newFixedCells);
-        
-        toast({
-          title: "Puzzle Captured",
-          description: "A Sudoku puzzle has been detected and imported",
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then((stream) => {
+          // In a full implementation, we would show a video preview and capture frame
+          // For now, we'll simulate with a mock puzzle after a delay
+          setTimeout(() => {
+            const mockPuzzle = [
+              [5, 3, null, null, 7, null, null, null, null],
+              [6, null, null, 1, 9, 5, null, null, null],
+              [null, 9, 8, null, null, null, null, 6, null],
+              [8, null, null, null, 6, null, null, null, 3],
+              [4, null, null, 8, null, 3, null, null, 1],
+              [7, null, null, null, 2, null, null, null, 6],
+              [null, 6, null, null, null, null, 2, 8, null],
+              [null, null, null, 4, 1, 9, null, null, 5],
+              [null, null, null, null, 8, null, null, 7, 9],
+            ];
+            
+            setPuzzle(mockPuzzle);
+            const newFixedCells = mockPuzzle.map(row => 
+              row.map(cell => cell !== null)
+            );
+            setFixedCells(newFixedCells);
+            
+            // Clean up the stream
+            stream.getTracks().forEach(track => track.stop());
+            
+            toast({
+              title: "Puzzle Captured",
+              description: "A Sudoku puzzle has been detected and imported",
+            });
+          }, 2000);
+        })
+        .catch((error) => {
+          console.error("Camera access error:", error);
+          toast({
+            title: "Camera Access Denied",
+            description: "Please allow camera access or use the upload option instead",
+            variant: "destructive",
+          });
         });
-      }, 2000);
     } else {
       toast({
         title: "Camera Not Available",
@@ -136,6 +151,11 @@ const AISolver = () => {
         title: "Puzzle Extracted",
         description: "A Sudoku puzzle has been detected and imported from your image",
       });
+      
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }, 2000);
   };
 
@@ -180,53 +200,63 @@ const AISolver = () => {
     const initialState = JSON.parse(JSON.stringify(puzzle));
     const steps = [initialState];
     
-    // Use our solver algorithm to solve the puzzle
-    const solvedPuzzle = solveSudoku(puzzle);
-    
-    if (solvedPuzzle) {
-      // Create a few intermediate steps for demonstration
-      const step1 = JSON.parse(JSON.stringify(puzzle));
-      // Fill in some cells as intermediate steps
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 9; j++) {
-          if (step1[i][j] === null && solvedPuzzle[i][j] !== null) {
-            step1[i][j] = solvedPuzzle[i][j];
-            break;
+    try {
+      // Use our solver algorithm to solve the puzzle
+      const solvedPuzzle = solveSudoku(puzzle);
+      
+      if (solvedPuzzle) {
+        // Create a few intermediate steps for demonstration
+        const step1 = JSON.parse(JSON.stringify(puzzle));
+        // Fill in some cells as intermediate steps
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 9; j++) {
+            if (step1[i][j] === null && solvedPuzzle[i][j] !== null) {
+              step1[i][j] = solvedPuzzle[i][j];
+              break;
+            }
           }
         }
-      }
-      steps.push(step1);
-      
-      const step2 = JSON.parse(JSON.stringify(step1));
-      // Fill in more cells
-      for (let i = 3; i < 6; i++) {
-        for (let j = 0; j < 9; j++) {
-          if (step2[i][j] === null && solvedPuzzle[i][j] !== null) {
-            step2[i][j] = solvedPuzzle[i][j];
-            break;
+        steps.push(step1);
+        
+        const step2 = JSON.parse(JSON.stringify(step1));
+        // Fill in more cells
+        for (let i = 3; i < 6; i++) {
+          for (let j = 0; j < 9; j++) {
+            if (step2[i][j] === null && solvedPuzzle[i][j] !== null) {
+              step2[i][j] = solvedPuzzle[i][j];
+              break;
+            }
           }
         }
+        steps.push(step2);
+        
+        // Add final solution
+        steps.push(solvedPuzzle);
+        
+        setSolutionSteps(steps);
+        setPuzzle(solvedPuzzle);
+        setSolution(solvedPuzzle);
+        setIsSolving(false);
+        setIsSolved(true);
+        
+        toast({
+          title: "Puzzle Solved!",
+          description: "The solution has been found using constraint satisfaction and backtracking",
+        });
+      } else {
+        setIsSolving(false);
+        toast({
+          title: "No Solution Found",
+          description: "This puzzle might not have a valid solution. Please check your input.",
+          variant: "destructive",
+        });
       }
-      steps.push(step2);
-      
-      // Add final solution
-      steps.push(solvedPuzzle);
-      
-      setSolutionSteps(steps);
-      setPuzzle(solvedPuzzle);
-      setSolution(solvedPuzzle);
-      setIsSolving(false);
-      setIsSolved(true);
-      
-      toast({
-        title: "Puzzle Solved!",
-        description: "The solution has been found using constraint satisfaction and backtracking",
-      });
-    } else {
+    } catch (error) {
+      console.error("Solving error:", error);
       setIsSolving(false);
       toast({
-        title: "No Solution Found",
-        description: "This puzzle might not have a valid solution. Please check your input.",
+        title: "Error Solving Puzzle",
+        description: "An error occurred while solving the puzzle. Please try again.",
         variant: "destructive",
       });
     }
@@ -273,38 +303,12 @@ const AISolver = () => {
       </AnimatedTitle>
       
       <div className="flex flex-col items-center mx-auto w-full z-10">
-        <GlassCard className="w-full mb-4 sm:mb-6 animate-scale-in" style={{ animationDelay: '300ms' }}>
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <CustomButton 
-              variant="outline" 
-              Icon={Camera} 
-              fullWidth
-              onClick={handleCaptureImage}
-            >
-              Take Photo
-            </CustomButton>
-            
-            <CustomButton 
-              variant="outline" 
-              Icon={Upload} 
-              fullWidth
-              onClick={handleUploadImage}
-            >
-              Upload Image
-            </CustomButton>
-            <input 
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleFileSelect}
-            />
-          </div>
-          
-          <div className="text-center text-sm text-muted-foreground mb-2">
-            or input numbers manually on the grid below
-          </div>
-        </GlassCard>
+        <ImageInputOptions
+          handleCaptureImage={handleCaptureImage}
+          handleFileSelect={handleFileSelect}
+          handleUploadImage={handleUploadImage}
+          fileInputRef={fileInputRef}
+        />
         
         <div className="mb-4 sm:mb-6 animate-scale-in" style={{ animationDelay: '400ms' }}>
           <SudokuBoard 

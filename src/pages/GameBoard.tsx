@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Logo from '@/components/Logo';
@@ -47,15 +48,42 @@ const GameBoard = () => {
   const levelIndex = Number(level) - 1;
 
   useEffect(() => {
-    if (samplePuzzles[difficultyKey] && samplePuzzles[difficultyKey][levelIndex]) {
-      const initialPuzzle = JSON.parse(JSON.stringify(samplePuzzles[difficultyKey][levelIndex]));
-      setPuzzle(initialPuzzle);
-      setFixedCells(createPuzzleWithFixedCells(initialPuzzle));
-      
-      const solvedPuzzle = solveSudoku(initialPuzzle);
-      setSolution(solvedPuzzle);
-    }
-  }, [difficulty, level]);
+    const loadPuzzle = () => {
+      try {
+        if (samplePuzzles[difficultyKey] && samplePuzzles[difficultyKey][levelIndex]) {
+          const initialPuzzle = JSON.parse(JSON.stringify(samplePuzzles[difficultyKey][levelIndex]));
+          setPuzzle(initialPuzzle);
+          setFixedCells(createPuzzleWithFixedCells(initialPuzzle));
+          
+          const solvedPuzzle = solveSudoku(initialPuzzle);
+          setSolution(solvedPuzzle);
+          
+          // Reset game state when loading a new puzzle
+          setSelectedCell(null);
+          setTimer(0);
+          setIsComplete(false);
+          setHintsUsed(0);
+          setShowSolution(false);
+        } else {
+          // Handle case where puzzle doesn't exist
+          toast({
+            title: "Puzzle Not Found",
+            description: `Could not load puzzle for ${difficulty} level ${level}`,
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error loading puzzle:", error);
+        toast({
+          title: "Error Loading Puzzle",
+          description: "An error occurred while loading the puzzle",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    loadPuzzle();
+  }, [difficulty, level, toast]);
 
   useEffect(() => {
     if (isComplete) return;
@@ -76,10 +104,12 @@ const GameBoard = () => {
   const handleCellValueChange = (row: number, col: number, value: number | null) => {
     if (fixedCells[row][col]) return;
     
-    const newPuzzle = [...puzzle];
+    // Create a deep copy of the puzzle array
+    const newPuzzle = JSON.parse(JSON.stringify(puzzle));
     newPuzzle[row][col] = value;
     setPuzzle(newPuzzle);
     
+    // Check if the puzzle is complete
     if (isSudokuComplete(newPuzzle)) {
       setIsComplete(true);
       setShowSolution(true);
@@ -94,6 +124,12 @@ const GameBoard = () => {
     if (selectedCell) {
       const { row, col } = selectedCell;
       handleCellValueChange(row, col, num);
+    } else {
+      toast({
+        title: "No Cell Selected",
+        description: "Please select a cell on the grid first",
+        variant: "default",
+      });
     }
   };
 

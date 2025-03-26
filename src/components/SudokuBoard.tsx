@@ -144,22 +144,20 @@ const SudokuBoard: React.FC<SudokuBoardProps> = ({
     >
       <div className="grid grid-cols-9 h-full w-full">
         {puzzle.map((row, rowIndex) => (
-          <React.Fragment key={`row-${rowIndex}`}>
-            {row.map((cell, colIndex) => (
-              <SudokuCell
-                key={`cell-${rowIndex}-${colIndex}`}
-                value={cell}
-                isFixed={fixedCells[rowIndex][colIndex]}
-                isSelected={selectedCell?.row === rowIndex && selectedCell?.col === colIndex}
-                isHighlighted={isHighlighted(rowIndex, colIndex)}
-                hasError={hasError(rowIndex, colIndex)}
-                row={rowIndex}
-                col={colIndex}
-                onClick={handleCellClick}
-                fontSize={getFontSize()}
-              />
-            ))}
-          </React.Fragment>
+          row.map((cell, colIndex) => (
+            <SudokuCell
+              key={`cell-${rowIndex}-${colIndex}`}
+              value={cell}
+              isFixed={fixedCells[rowIndex][colIndex]}
+              isSelected={selectedCell?.row === rowIndex && selectedCell?.col === colIndex}
+              isHighlighted={isHighlighted(rowIndex, colIndex)}
+              hasError={hasError(rowIndex, colIndex)}
+              row={rowIndex}
+              col={colIndex}
+              onClick={handleCellClick}
+              fontSize={getFontSize()}
+            />
+          ))
         ))}
       </div>
     </div>

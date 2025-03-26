@@ -6,13 +6,15 @@ interface SakuraBackgroundProps {
   animationSpeed?: number;
   petalsSize?: 'small' | 'medium' | 'large' | 'mixed';
   showTree?: boolean;
+  treePosition?: 'left' | 'right';
 }
 
 const SakuraBackground: React.FC<SakuraBackgroundProps> = ({ 
   petalsCount = 15,
   animationSpeed = 1,
   petalsSize = 'mixed',
-  showTree = false
+  showTree = false,
+  treePosition = 'left'
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +29,16 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
     if (showTree) {
       const tree = document.createElement('div');
       tree.className = 'sakura-tree';
+      
+      // Set tree position based on prop
+      if (treePosition === 'right') {
+        tree.style.right = '5%';
+        tree.style.left = 'auto';
+      } else {
+        tree.style.left = '5%';
+        tree.style.right = 'auto';
+      }
+      
       container.appendChild(tree);
       
       // Add tree branches
@@ -35,11 +47,11 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
       tree.appendChild(branches);
       
       // Add blossoms to the tree
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 15; i++) {
         const blossom = document.createElement('div');
         blossom.className = 'sakura-blossom';
         blossom.style.left = `${Math.random() * 100}%`;
-        blossom.style.top = `${Math.random() * 50}%`;
+        blossom.style.top = `${Math.random() * 80}%`;
         blossom.style.animationDelay = `${Math.random() * 5}s`;
         branches.appendChild(blossom);
       }
@@ -89,7 +101,7 @@ const SakuraBackground: React.FC<SakuraBackgroundProps> = ({
         container.innerHTML = '';
       }
     };
-  }, [petalsCount, animationSpeed, petalsSize, showTree]);
+  }, [petalsCount, animationSpeed, petalsSize, showTree, treePosition]);
 
   return (
     <div className="sakura-container" ref={containerRef} />

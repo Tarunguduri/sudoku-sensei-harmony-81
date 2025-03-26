@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Volume2, VolumeX, Sun, Moon, FileText, Languages, Music } from 'lucide-react';
@@ -13,6 +14,13 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
+// Define the music options
+const musicOptions = [
+  { id: 'sakura', name: 'Sakura Dreams', src: '/audio/sakura-dreams.mp3' },
+  { id: 'zen', name: 'Zen Garden', src: '/audio/zen-garden.mp3' },
+  { id: 'koto', name: 'Koto Melody', src: '/audio/koto-melody.mp3' },
+];
+
 const Settings = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -25,13 +33,8 @@ const Settings = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const musicOptions = [
-    { id: 'sakura', name: 'Sakura Dreams', src: '/audio/sakura-dreams.mp3' },
-    { id: 'zen', name: 'Zen Garden', src: '/audio/zen-garden.mp3' },
-    { id: 'koto', name: 'Koto Melody', src: '/audio/koto-melody.mp3' },
-  ];
-
   useEffect(() => {
+    // Load saved settings from localStorage
     const savedSound = localStorage.getItem('soundEnabled');
     const savedVolume = localStorage.getItem('volume');
     const savedMusic = localStorage.getItem('selectedMusic');
@@ -40,14 +43,21 @@ const Settings = () => {
     if (savedVolume) setVolume(parseInt(savedVolume));
     if (savedMusic) setSelectedMusic(savedMusic);
     
+    // Initialize audio object
     audioRef.current = new Audio();
     
-    if (savedMusic && soundEnabled) {
+    if (savedMusic && savedSound === 'true') {
       const musicTrack = musicOptions.find(track => track.id === savedMusic);
       if (musicTrack) {
         audioRef.current.src = musicTrack.src;
         audioRef.current.loop = true;
         audioRef.current.volume = parseInt(savedVolume || '80') / 100;
+        
+        // Auto-play if selected (but may be blocked by browser)
+        audioRef.current.play().catch(error => {
+          console.error('Audio playback failed:', error);
+        });
+        setIsPlaying(true);
       }
     }
     
