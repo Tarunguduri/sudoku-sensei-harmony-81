@@ -533,4 +533,4 @@ export const samplePuzzles = {
       [null, null, null, null, 4, null, null, null, 9],
     ],
     [
-      [null, null, null, null, null, null, null,
+      [null, null, null, null, null, null, null, null, null
