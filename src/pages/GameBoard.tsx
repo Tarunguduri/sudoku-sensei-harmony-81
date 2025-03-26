@@ -6,7 +6,13 @@ import CustomButton from '@/components/CustomButton';
 import SudokuBoard from '@/components/SudokuBoard';
 import NumberPad from '@/components/NumberPad';
 import { ArrowLeft, Clock, Star, HelpCircle, Settings, Trophy } from 'lucide-react';
-import { samplePuzzles, createPuzzleWithFixedCells, isSudokuComplete, solveSudoku } from '@/utils/sudokuUtils';
+import { 
+  samplePuzzles, 
+  createPuzzleWithFixedCells, 
+  isSudokuComplete, 
+  solveSudoku,
+  createEmptyGrid
+} from '@/utils/sudoku';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SakuraBackground from '@/components/SakuraBackground';
