@@ -71,6 +71,48 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Calculate stars based on difficulty and time
+  const calculateStars = () => {
+    // Time thresholds for each difficulty (in seconds)
+    const thresholds: Record<string, [number, number]> = {
+      beginner: [90, 180],     // 3 stars if < 90s, 2 stars if < 180s, 1 star otherwise
+      novice: [150, 240],      // 3 stars if < 150s, 2 stars if < 240s, 1 star otherwise
+      intermediate: [240, 360], // 3 stars if < 240s, 2 stars if < 360s, 1 star otherwise
+      skilled: [300, 480],     // 3 stars if < 300s, 2 stars if < 480s, 1 star otherwise
+      expert: [420, 600],      // 3 stars if < 420s, 2 stars if < 600s, 1 star otherwise
+      master: [540, 720],      // 3 stars if < 540s, 2 stars if < 720s, 1 star otherwise
+    };
+    
+    // Get thresholds for current difficulty, default to intermediate if not found
+    const [fast, medium] = thresholds[difficulty.toLowerCase()] || thresholds.intermediate;
+    
+    // Each hint used reduces the star count by 0.5 (but never below 1)
+    const hintPenalty = hintsUsed * 0.5;
+    
+    // Base star count on time
+    let stars = time < fast ? 3 : (time < medium ? 2 : 1);
+    
+    // Apply hint penalty, but ensure at least 1 star
+    stars = Math.max(1, stars - hintPenalty);
+    
+    return stars;
+  };
+
+  const stars = calculateStars();
+  const fullStars = Math.floor(stars);
+  const hasHalfStar = stars % 1 !== 0;
+
+  // Save stars to localStorage
+  React.useEffect(() => {
+    if (isOpen) {
+      const levelKey = `${difficulty.toLowerCase()}-${level}-stars`;
+      const currentStars = parseFloat(localStorage.getItem(levelKey) || '0');
+      if (stars > currentStars) {
+        localStorage.setItem(levelKey, stars.toString());
+      }
+    }
+  }, [isOpen, stars, difficulty, level]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gradient-to-b from-white to-pink-50 dark:from-ink-800 dark:to-ink-900 border-sakura-200 sm:max-w-md">
@@ -100,6 +142,24 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
               <span className="text-sm text-muted-foreground">Hints Used</span>
               <span className="font-bold">{hintsUsed}/3</span>
             </div>
+          </div>
+          
+          {/* Star Rating Display */}
+          <div className="flex justify-center mt-4 space-x-1">
+            {[...Array(fullStars)].map((_, i) => (
+              <Star key={i} className="h-8 w-8 text-amber-500 fill-amber-500" />
+            ))}
+            {hasHalfStar && (
+              <div className="relative h-8 w-8">
+                <Star className="absolute h-8 w-8 text-amber-500" />
+                <div className="absolute inset-0 overflow-hidden w-1/2">
+                  <Star className="h-8 w-8 text-amber-500 fill-amber-500" />
+                </div>
+              </div>
+            )}
+            {[...Array(3 - Math.ceil(stars))].map((_, i) => (
+              <Star key={i + fullStars + (hasHalfStar ? 1 : 0)} className="h-8 w-8 text-amber-500" />
+            ))}
           </div>
         </GlassCard>
         

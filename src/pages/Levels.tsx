@@ -5,17 +5,22 @@ import SakuraBackground from '@/components/SakuraBackground';
 import Logo from '@/components/Logo';
 import GlassCard from '@/components/GlassCard';
 import CustomButton from '@/components/CustomButton';
-import { ArrowLeft, Check, Lock } from 'lucide-react';
+import { ArrowLeft, Check, Lock, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LevelButtonProps {
   level: number;
   completed: boolean;
   isUnlocked: boolean;
+  starRating: number;  // 0-3 stars (can be decimal for half stars)
   onClick: () => void;
 }
 
-const LevelButton: React.FC<LevelButtonProps> = ({ level, completed, isUnlocked, onClick }) => {
+const LevelButton: React.FC<LevelButtonProps> = ({ level, completed, isUnlocked, starRating, onClick }) => {
+  // Calculate full and half stars
+  const fullStars = Math.floor(starRating);
+  const hasHalfStar = starRating % 1 !== 0;
+  
   return (
     <button
       className={cn(
@@ -46,6 +51,26 @@ const LevelButton: React.FC<LevelButtonProps> = ({ level, completed, isUnlocked,
       )}>
         {level}
       </span>
+      
+      {/* Star rating display for completed levels */}
+      {completed && starRating > 0 && (
+        <div className="absolute bottom-1 left-0 right-0 flex justify-center space-x-0.5">
+          {[...Array(fullStars)].map((_, i) => (
+            <Star key={i} className="w-3 h-3 text-amber-500 fill-amber-500" />
+          ))}
+          {hasHalfStar && (
+            <div className="relative w-3 h-3">
+              <Star className="absolute w-3 h-3 text-amber-500" />
+              <div className="absolute inset-0 overflow-hidden w-1/2">
+                <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+              </div>
+            </div>
+          )}
+          {[...Array(3 - Math.ceil(starRating))].map((_, i) => (
+            <Star key={i + fullStars + (hasHalfStar ? 1 : 0)} className="w-3 h-3 text-amber-500" />
+          ))}
+        </div>
+      )}
     </button>
   );
 };
@@ -54,6 +79,7 @@ const Levels = () => {
   const { category } = useParams<{ category: string }>();
   const navigate = useNavigate();
   const [completedLevels, setCompletedLevels] = useState<string[]>([]);
+  const [starRatings, setStarRatings] = useState<Record<string, number>>({});
   
   // Get the base level number based on the category
   const getLevelBase = () => {
@@ -80,13 +106,26 @@ const Levels = () => {
     }
   };
 
-  // Load completed levels from localStorage
+  // Load completed levels and star ratings from localStorage
   useEffect(() => {
     const savedLevels = localStorage.getItem('completedLevels');
     if (savedLevels) {
       setCompletedLevels(JSON.parse(savedLevels));
     }
-  }, []);
+    
+    // Load star ratings
+    const ratings: Record<string, number> = {};
+    if (category) {
+      for (let i = 1; i <= 5; i++) {
+        const levelKey = `${category.toLowerCase()}-${i}-stars`;
+        const starValue = localStorage.getItem(levelKey);
+        if (starValue) {
+          ratings[`${category.toLowerCase()}-${i}`] = parseFloat(starValue);
+        }
+      }
+    }
+    setStarRatings(ratings);
+  }, [category]);
 
   const levelBase = getLevelBase();
   const levelName = getLevelName();
@@ -103,6 +142,11 @@ const Levels = () => {
     // Previous level completed means this level is unlocked
     const previousLevelKey = `${category?.toLowerCase()}-${levelNumber - levelBase}`;
     return completedLevels.includes(previousLevelKey);
+  };
+
+  const getLevelStarRating = (levelNumber: number): number => {
+    const levelKey = `${category?.toLowerCase()}-${levelNumber - levelBase + 1}`;
+    return starRatings[levelKey] || 0;
   };
 
   const handleLevelClick = (levelNumber: number) => {
@@ -136,6 +180,7 @@ const Levels = () => {
                 level={level}
                 completed={isLevelCompleted(level)}
                 isUnlocked={isLevelUnlocked(level)}
+                starRating={getLevelStarRating(level)}
                 onClick={() => handleLevelClick(level)}
               />
             ))}
