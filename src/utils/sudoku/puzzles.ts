@@ -1,3 +1,4 @@
+
 import { SudokuGrid, DifficultyLevel } from './types';
 import { solveSudoku } from './solver';
 
@@ -422,3 +423,54 @@ export const sampleSolutions: Record<DifficultyLevel, SudokuGrid[]> = {
       [6, 7, 2, 1, 9, 5, 3, 4, 8],
       [1, 9, 8, 3, 4, 2, 5, 6, 7],
       [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 9],
+    ],
+    // Solution for Level 5
+    [
+      [5, 3, 4, 6, 7, 8, 9, 1, 2],
+      [6, 7, 2, 1, 9, 5, 3, 4, 8],
+      [1, 9, 8, 3, 4, 2, 5, 6, 7],
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 9],
+    ],
+  ],
+  novice: [],
+  intermediate: [],
+  skilled: [],
+  expert: [],
+  master: [],
+};
+
+// Function to ensure all puzzles have solutions
+export const updatePuzzlesWithUniqueSolutions = () => {
+  // For each difficulty level
+  Object.keys(samplePuzzles).forEach((difficultyKey) => {
+    const difficulty = difficultyKey as DifficultyLevel;
+    
+    // Initialize the solutions array if it doesn't exist
+    if (!sampleSolutions[difficulty] || sampleSolutions[difficulty].length === 0) {
+      sampleSolutions[difficulty] = [];
+    }
+    
+    // For each puzzle in the difficulty level
+    samplePuzzles[difficulty].forEach((puzzle, index) => {
+      // If no solution exists for this puzzle, solve it
+      if (!sampleSolutions[difficulty][index]) {
+        const solution = solveSudoku(JSON.parse(JSON.stringify(puzzle)));
+        if (solution) {
+          sampleSolutions[difficulty][index] = solution;
+        } else {
+          console.error(`Could not solve puzzle ${index + 1} for difficulty ${difficulty}`);
+        }
+      }
+    });
+  });
+};
