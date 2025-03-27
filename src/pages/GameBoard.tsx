@@ -17,36 +17,28 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SakuraBackground from '@/components/SakuraBackground';
 import GlassCard from '@/components/GlassCard';
-
-// Sound effects
-const useSound = () => {
-  const playNumberSelect = () => {
-    const sound = new Audio('/audio/select.mp3');
-    sound.volume = 0.3;
-    sound.play().catch(err => console.log('Audio play failed', err));
-  };
-
-  const playComplete = () => {
-    const sound = new Audio('/audio/complete.mp3');
-    sound.volume = 0.4;
-    sound.play().catch(err => console.log('Audio play failed', err));
-  };
-
-  const playHint = () => {
-    const sound = new Audio('/audio/hint.mp3');
-    sound.volume = 0.3;
-    sound.play().catch(err => console.log('Audio play failed', err));
-  };
-
-  return { playNumberSelect, playComplete, playHint };
-};
+import CompletionPopup from '@/components/CompletionPopup';
+import { useMusicPlayer } from '@/hooks/use-music-player';
+import { 
+  Dialog, 
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 const GameBoard = () => {
   const { difficulty, level } = useParams<{ difficulty: string; level: string }>();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { playNumberSelect, playComplete, playHint } = useSound();
   const navigate = useNavigate();
+  const { 
+    soundEnabled, 
+    playNumberSelect, 
+    playComplete, 
+    playHint 
+  } = useMusicPlayer();
   
   const [puzzle, setPuzzle] = useState<(number | null)[][]>([]);
   const [fixedCells, setFixedCells] = useState<boolean[][]>([]);
@@ -56,7 +48,8 @@ const GameBoard = () => {
   const [hintsUsed, setHintsUsed] = useState(0);
   const [solution, setSolution] = useState<(number | null)[][] | null>(null);
   const [maxHints] = useState(3); // Maximum hints allowed per level
-  const [autoAdvanceTimer, setAutoAdvanceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [completedLevels, setCompletedLevels] = useState<string[]>([]);
 
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
@@ -72,6 +65,21 @@ const GameBoard = () => {
 
   const difficultyKey = getDifficultyKey();
   const levelIndex = Number(level) - 1;
+
+  // Load completed levels from localStorage
+  useEffect(() => {
+    const savedLevels = localStorage.getItem('completedLevels');
+    if (savedLevels) {
+      setCompletedLevels(JSON.parse(savedLevels));
+    }
+  }, []);
+
+  // Save completed levels to localStorage
+  useEffect(() => {
+    if (completedLevels.length > 0) {
+      localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+    }
+  }, [completedLevels]);
 
   useEffect(() => {
     const loadPuzzle = () => {
@@ -89,6 +97,7 @@ const GameBoard = () => {
           setTimer(0);
           setIsComplete(false);
           setHintsUsed(0);
+          setShowCompletionDialog(false);
         } else {
           // Handle case where puzzle doesn't exist
           toast({
@@ -108,22 +117,7 @@ const GameBoard = () => {
     };
     
     loadPuzzle();
-    
-    // Clear any existing auto-advance timer when loading a new puzzle
-    if (autoAdvanceTimer) {
-      clearTimeout(autoAdvanceTimer);
-      setAutoAdvanceTimer(null);
-    }
-  }, [difficulty, level, toast, autoAdvanceTimer]);
-
-  // Cleanup auto-advance timer on component unmount
-  useEffect(() => {
-    return () => {
-      if (autoAdvanceTimer) {
-        clearTimeout(autoAdvanceTimer);
-      }
-    };
-  }, [autoAdvanceTimer]);
+  }, [difficulty, level, toast]);
 
   useEffect(() => {
     if (isComplete) return;
@@ -154,21 +148,26 @@ const GameBoard = () => {
       newPuzzle[row][col] = value;
       setPuzzle(newPuzzle);
       
+      // Play sound effect if enabled
+      if (soundEnabled && value !== null) {
+        playNumberSelect();
+      }
+      
       // Check if the puzzle is complete
       if (isSudokuComplete(newPuzzle)) {
         setIsComplete(true);
-        playComplete();
-        toast({
-          title: "Puzzle Complete!",
-          description: `Great job! You solved the puzzle in ${formatTime(timer)}`,
-        });
+        if (soundEnabled) {
+          playComplete();
+        }
         
-        // Set up auto-advance to next level after 3 seconds
-        const nextTimer = setTimeout(() => {
-          advanceToNextLevel();
-        }, 3000);
+        // Mark level as completed
+        const levelKey = `${difficulty}-${level}`;
+        if (!completedLevels.includes(levelKey)) {
+          setCompletedLevels([...completedLevels, levelKey]);
+        }
         
-        setAutoAdvanceTimer(nextTimer);
+        // Show completion dialog
+        setShowCompletionDialog(true);
       }
     }
   };
@@ -212,7 +211,6 @@ const GameBoard = () => {
       const { row, col } = selectedCell;
       if (!fixedCells[row][col]) {
         handleCellValueChange(row, col, num);
-        playNumberSelect();
       } else {
         toast({
           title: "Fixed Cell",
@@ -280,7 +278,9 @@ const GameBoard = () => {
     
     handleCellValueChange(row, col, correctValue);
     setHintsUsed(hintsUsed + 1);
-    playHint();
+    if (soundEnabled) {
+      playHint();
+    }
     
     toast({
       title: "Hint Used",
@@ -351,23 +351,18 @@ const GameBoard = () => {
             Hint ({maxHints - hintsUsed} left)
           </CustomButton>
         </div>
-        
-        {isComplete && (
-          <GlassCard className="w-full max-w-md mt-6 animate-scale-in">
-            <div className="text-center py-2">
-              <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mb-2">
-                Puzzle Completed!
-              </h3>
-              <p className="text-sm mb-2">
-                Time: {formatTime(timer)} • Hints Used: {hintsUsed}/{maxHints}
-              </p>
-              <p className="text-xs text-stone-500">
-                Advancing to next level in 3 seconds...
-              </p>
-            </div>
-          </GlassCard>
-        )}
       </div>
+
+      <CompletionPopup
+        isOpen={showCompletionDialog}
+        onClose={() => setShowCompletionDialog(false)}
+        onNextLevel={advanceToNextLevel}
+        onMenu={() => navigate('/levels')}
+        difficulty={difficulty || ""}
+        level={level || ""}
+        time={timer}
+        hintsUsed={hintsUsed}
+      />
     </div>
   );
 };

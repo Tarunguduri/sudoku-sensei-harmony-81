@@ -9,22 +9,48 @@ import CustomButton from '@/components/CustomButton';
 import { ArrowLeft } from 'lucide-react';
 
 const LevelCategories = () => {
-  const [progress, setProgress] = useState({
-    beginner: 2,
-    novice: 0,
-    intermediate: 0,
-    skilled: 0,
-    expert: 0,
-    master: 0
-  });
+  const [completedLevels, setCompletedLevels] = useState<string[]>([]);
+
+  // Load completed levels from localStorage
+  useEffect(() => {
+    const savedLevels = localStorage.getItem('completedLevels');
+    if (savedLevels) {
+      setCompletedLevels(JSON.parse(savedLevels));
+    }
+  }, []);
+
+  // Count completed levels for each difficulty
+  const countCompletedLevels = (difficulty: string): number => {
+    return completedLevels.filter(level => level.startsWith(difficulty.toLowerCase())).length;
+  };
+
+  // Check if difficulty is unlocked based on previous difficulty progress
+  const isDifficultyUnlocked = (difficulty: string): boolean => {
+    switch (difficulty.toLowerCase()) {
+      case 'beginner':
+        return true;
+      case 'novice':
+        return countCompletedLevels('beginner') >= 3;
+      case 'intermediate':
+        return countCompletedLevels('novice') >= 3;
+      case 'skilled':
+        return countCompletedLevels('intermediate') >= 3;
+      case 'expert':
+        return countCompletedLevels('skilled') >= 3;
+      case 'master':
+        return countCompletedLevels('expert') >= 3;
+      default:
+        return false;
+    }
+  };
 
   const difficultyLevels = [
-    { name: "Beginner", japaneseName: "初めて (Hajimete)", range: "Levels 1-5", isUnlocked: true, totalLevels: 5, completed: progress.beginner },
-    { name: "Novice", japaneseName: "新人 (Shinjin)", range: "Levels 6-10", isUnlocked: progress.beginner >= 3, totalLevels: 5, completed: progress.novice },
-    { name: "Intermediate", japaneseName: "中段 (Chuudan)", range: "Levels 11-15", isUnlocked: progress.novice >= 3, totalLevels: 5, completed: progress.intermediate },
-    { name: "Skilled", japaneseName: "匠 (Takumi)", range: "Levels 16-20", isUnlocked: progress.intermediate >= 3, totalLevels: 5, completed: progress.skilled },
-    { name: "Expert", japaneseName: "先生 (Sensei)", range: "Levels 21-25", isUnlocked: progress.skilled >= 3, totalLevels: 5, completed: progress.expert },
-    { name: "Master", japaneseName: "将軍 (Shogun)", range: "Levels 26-30", isUnlocked: progress.expert >= 3, totalLevels: 5, completed: progress.master }
+    { name: "Beginner", japaneseName: "初めて (Hajimete)", range: "Levels 1-5", totalLevels: 5, completed: countCompletedLevels('beginner') },
+    { name: "Novice", japaneseName: "新人 (Shinjin)", range: "Levels 6-10", totalLevels: 5, completed: countCompletedLevels('novice') },
+    { name: "Intermediate", japaneseName: "中段 (Chuudan)", range: "Levels 11-15", totalLevels: 5, completed: countCompletedLevels('intermediate') },
+    { name: "Skilled", japaneseName: "匠 (Takumi)", range: "Levels 16-20", totalLevels: 5, completed: countCompletedLevels('skilled') },
+    { name: "Expert", japaneseName: "先生 (Sensei)", range: "Levels 21-25", totalLevels: 5, completed: countCompletedLevels('expert') },
+    { name: "Master", japaneseName: "将軍 (Shogun)", range: "Levels 26-30", totalLevels: 5, completed: countCompletedLevels('master') }
   ];
 
   return (
@@ -56,7 +82,7 @@ const LevelCategories = () => {
               name={level.name}
               japaneseName={level.japaneseName}
               range={level.range}
-              isUnlocked={level.isUnlocked}
+              isUnlocked={isDifficultyUnlocked(level.name)}
               index={index}
               totalLevels={level.totalLevels}
               completed={level.completed}

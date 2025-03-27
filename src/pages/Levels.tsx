@@ -53,7 +53,7 @@ const LevelButton: React.FC<LevelButtonProps> = ({ level, completed, isUnlocked,
 const Levels = () => {
   const { category } = useParams<{ category: string }>();
   const navigate = useNavigate();
-  const [completedLevels, setCompletedLevels] = useState<number[]>([1, 2]);
+  const [completedLevels, setCompletedLevels] = useState<string[]>([]);
   
   // Get the base level number based on the category
   const getLevelBase = () => {
@@ -80,8 +80,30 @@ const Levels = () => {
     }
   };
 
+  // Load completed levels from localStorage
+  useEffect(() => {
+    const savedLevels = localStorage.getItem('completedLevels');
+    if (savedLevels) {
+      setCompletedLevels(JSON.parse(savedLevels));
+    }
+  }, []);
+
   const levelBase = getLevelBase();
   const levelName = getLevelName();
+
+  const isLevelCompleted = (levelNumber: number): boolean => {
+    const levelKey = `${category?.toLowerCase()}-${levelNumber - levelBase + 1}`;
+    return completedLevels.includes(levelKey);
+  };
+
+  const isLevelUnlocked = (levelNumber: number): boolean => {
+    // First level is always unlocked
+    if (levelNumber === levelBase) return true;
+    
+    // Previous level completed means this level is unlocked
+    const previousLevelKey = `${category?.toLowerCase()}-${levelNumber - levelBase}`;
+    return completedLevels.includes(previousLevelKey);
+  };
 
   const handleLevelClick = (levelNumber: number) => {
     navigate(`/play/${category?.toLowerCase()}/${levelNumber - levelBase + 1}`);
@@ -112,8 +134,8 @@ const Levels = () => {
               <LevelButton
                 key={level}
                 level={level}
-                completed={completedLevels.includes(level)}
-                isUnlocked={level <= levelBase + completedLevels.length}
+                completed={isLevelCompleted(level)}
+                isUnlocked={isLevelUnlocked(level)}
                 onClick={() => handleLevelClick(level)}
               />
             ))}

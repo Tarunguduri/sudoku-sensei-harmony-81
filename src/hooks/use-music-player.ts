@@ -16,17 +16,14 @@ export const useMusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
 
+  // Sound effect refs to avoid recreating them on each call
+  const selectSoundRef = useRef<HTMLAudioElement | null>(null);
+  const completeSoundRef = useRef<HTMLAudioElement | null>(null);
+  const hintSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio elements
   useEffect(() => {
-    // Load saved settings from localStorage
-    const savedSound = localStorage.getItem('soundEnabled');
-    const savedVolume = localStorage.getItem('volume');
-    const savedMusic = localStorage.getItem('selectedMusic');
-    
-    if (savedSound) setSoundEnabled(savedSound === 'true');
-    if (savedVolume) setVolume(parseInt(savedVolume));
-    if (savedMusic) setSelectedMusic(savedMusic);
-    
-    // Initialize audio object
+    // Main music audio element
     if (!audioRef.current) {
       audioRef.current = new Audio();
       
@@ -42,6 +39,31 @@ export const useMusicPlayer = () => {
         setAudioError(null);
       });
     }
+    
+    // Sound effects
+    if (!selectSoundRef.current) {
+      selectSoundRef.current = new Audio('/audio/select.mp3');
+      selectSoundRef.current.volume = 0.3;
+    }
+    
+    if (!completeSoundRef.current) {
+      completeSoundRef.current = new Audio('/audio/complete.mp3');
+      completeSoundRef.current.volume = 0.4;
+    }
+    
+    if (!hintSoundRef.current) {
+      hintSoundRef.current = new Audio('/audio/hint.mp3');
+      hintSoundRef.current.volume = 0.3;
+    }
+    
+    // Load saved settings from localStorage
+    const savedSound = localStorage.getItem('soundEnabled');
+    const savedVolume = localStorage.getItem('volume');
+    const savedMusic = localStorage.getItem('selectedMusic');
+    
+    if (savedSound) setSoundEnabled(savedSound === 'true');
+    if (savedVolume) setVolume(parseInt(savedVolume));
+    if (savedMusic) setSelectedMusic(savedMusic);
     
     if (savedMusic && savedSound === 'true') {
       const musicTrack = musicOptions.find(track => track.id === savedMusic);
@@ -66,6 +88,7 @@ export const useMusicPlayer = () => {
     }
     
     return () => {
+      // Clean up all audio elements
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.removeEventListener('error', () => {});
@@ -73,6 +96,32 @@ export const useMusicPlayer = () => {
       }
     };
   }, []);
+
+  // Function to play individual sound effects
+  const playNumberSelect = () => {
+    if (soundEnabled && selectSoundRef.current) {
+      // Clone and play to allow overlapping sounds
+      const sound = selectSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = volume / 100 * 0.3; // Scale with master volume
+      sound.play().catch(err => console.log('Audio play failed', err));
+    }
+  };
+
+  const playComplete = () => {
+    if (soundEnabled && completeSoundRef.current) {
+      const sound = completeSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = volume / 100 * 0.4; // Scale with master volume
+      sound.play().catch(err => console.log('Audio play failed', err));
+    }
+  };
+
+  const playHint = () => {
+    if (soundEnabled && hintSoundRef.current) {
+      const sound = hintSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = volume / 100 * 0.3; // Scale with master volume
+      sound.play().catch(err => console.log('Audio play failed', err));
+    }
+  };
 
   const handleSoundToggle = (checked: boolean) => {
     setSoundEnabled(checked);
@@ -166,6 +215,9 @@ export const useMusicPlayer = () => {
     handleSoundToggle,
     handleVolumeChange,
     handleMusicSelect,
-    togglePlayback
+    togglePlayback,
+    playNumberSelect,
+    playComplete,
+    playHint
   };
 };
