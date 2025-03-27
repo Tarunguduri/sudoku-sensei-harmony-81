@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SudokuCellProps {
@@ -25,7 +25,28 @@ const SudokuCell: React.FC<SudokuCellProps> = ({
   onClick,
   fontSize = 'text-lg md:text-xl',
 }) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  useEffect(() => {
+    // Initialize the audio element
+    audioRef.current = new Audio('/audio/select.mp3');
+    audioRef.current.volume = 0.2;
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+  
   const handleClick = () => {
+    // Play click sound when cell is clicked
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(err => console.log('Audio play failed', err));
+    }
+    
     onClick(row, col);
   };
 

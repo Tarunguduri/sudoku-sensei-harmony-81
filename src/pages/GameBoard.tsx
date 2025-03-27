@@ -5,7 +5,7 @@ import Logo from '@/components/Logo';
 import CustomButton from '@/components/CustomButton';
 import SudokuBoard from '@/components/SudokuBoard';
 import NumberPad from '@/components/NumberPad';
-import { ArrowLeft, Clock, Star, HelpCircle, Settings, Trophy } from 'lucide-react';
+import { ArrowLeft, Clock, Star, HelpCircle, Settings } from 'lucide-react';
 import { 
   samplePuzzles, 
   createPuzzleWithFixedCells, 
@@ -54,7 +54,6 @@ const GameBoard = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [solution, setSolution] = useState<(number | null)[][] | null>(null);
-  const [showSolution, setShowSolution] = useState(false);
 
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
@@ -87,7 +86,6 @@ const GameBoard = () => {
           setTimer(0);
           setIsComplete(false);
           setHintsUsed(0);
-          setShowSolution(false);
         } else {
           // Handle case where puzzle doesn't exist
           toast({
@@ -141,7 +139,6 @@ const GameBoard = () => {
       // Check if the puzzle is complete
       if (isSudokuComplete(newPuzzle)) {
         setIsComplete(true);
-        setShowSolution(true);
         playComplete();
         toast({
           title: "Puzzle Complete!",
@@ -224,22 +221,6 @@ const GameBoard = () => {
     });
   };
 
-  const toggleSolution = () => {
-    if (!isComplete && !showSolution) {
-      toast({
-        title: "Are you sure?",
-        description: "Viewing the solution will mark the puzzle as incomplete",
-        variant: "default",
-      });
-    }
-    
-    setShowSolution(!showSolution);
-    
-    if (!showSolution && solution) {
-      setPuzzle(solution);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col p-4 sm:p-6 overflow-hidden bg-gradient-to-b from-stone-50 to-pink-50 dark:from-ink-900 dark:to-ink-800">
       <SakuraBackground petalsCount={20} showTree={true} petalsColor="pink" density="normal" />
@@ -280,32 +261,22 @@ const GameBoard = () => {
         {puzzle.length > 0 && fixedCells.length > 0 && (
           <SudokuBoard
             puzzle={puzzle}
-            fixedCells={showSolution ? createEmptySudokuGrid(false) : fixedCells}
+            fixedCells={fixedCells}
             onCellValueChange={handleCellValueChange}
             className="mb-4 sm:mb-6"
           />
         )}
         
-        {!isComplete && !showSolution && (
+        {!isComplete && (
           <div className="w-full max-w-md mb-4 sm:mb-6">
             <NumberPad onNumberSelect={handleNumberSelect} />
           </div>
         )}
         
-        <div className="flex justify-center space-x-3">
+        <div className="flex justify-center">
           <CustomButton variant="outline" Icon={HelpCircle} onClick={handleHintRequest}>
             Hint
           </CustomButton>
-          
-          {solution && (
-            <CustomButton 
-              variant={showSolution ? "default" : "outline"} 
-              Icon={Trophy} 
-              onClick={toggleSolution}
-            >
-              {showSolution ? "Hide Solution" : "Show Solution"}
-            </CustomButton>
-          )}
         </div>
         
         {isComplete && (
