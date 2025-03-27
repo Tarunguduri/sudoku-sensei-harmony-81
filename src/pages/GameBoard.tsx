@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import CustomButton from '@/components/CustomButton';
 import SudokuBoard from '@/components/SudokuBoard';
@@ -46,6 +46,7 @@ const GameBoard = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { playNumberSelect, playComplete, playHint } = useSound();
+  const navigate = useNavigate();
   
   const [puzzle, setPuzzle] = useState<(number | null)[][]>([]);
   const [fixedCells, setFixedCells] = useState<boolean[][]>([]);
@@ -54,6 +55,8 @@ const GameBoard = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [solution, setSolution] = useState<(number | null)[][] | null>(null);
+  const [maxHints] = useState(3); // Maximum hints allowed per level
+  const [autoAdvanceTimer, setAutoAdvanceTimer] = useState<NodeJS.Timeout | null>(null);
 
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
@@ -105,7 +108,22 @@ const GameBoard = () => {
     };
     
     loadPuzzle();
-  }, [difficulty, level, toast]);
+    
+    // Clear any existing auto-advance timer when loading a new puzzle
+    if (autoAdvanceTimer) {
+      clearTimeout(autoAdvanceTimer);
+      setAutoAdvanceTimer(null);
+    }
+  }, [difficulty, level, toast, autoAdvanceTimer]);
+
+  // Cleanup auto-advance timer on component unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimer) {
+        clearTimeout(autoAdvanceTimer);
+      }
+    };
+  }, [autoAdvanceTimer]);
 
   useEffect(() => {
     if (isComplete) return;
@@ -144,6 +162,47 @@ const GameBoard = () => {
           title: "Puzzle Complete!",
           description: `Great job! You solved the puzzle in ${formatTime(timer)}`,
         });
+        
+        // Set up auto-advance to next level after 3 seconds
+        const nextTimer = setTimeout(() => {
+          advanceToNextLevel();
+        }, 3000);
+        
+        setAutoAdvanceTimer(nextTimer);
+      }
+    }
+  };
+
+  // Function to advance to the next level
+  const advanceToNextLevel = () => {
+    if (!difficulty || !level) return;
+    
+    const currentLevel = parseInt(level);
+    const diffKey = getDifficultyKey();
+    
+    // Check if there's a next level in the current difficulty
+    if (currentLevel < samplePuzzles[diffKey].length) {
+      // Navigate to the next level
+      navigate(`/play/${difficulty}/${currentLevel + 1}`);
+    } else {
+      // If we're at the end of the current difficulty, check if there's a next difficulty
+      const difficulties = ['beginner', 'novice', 'intermediate', 'skilled', 'expert', 'master'];
+      const currentDiffIndex = difficulties.indexOf(difficulty);
+      
+      if (currentDiffIndex < difficulties.length - 1) {
+        // Move to the first level of the next difficulty
+        navigate(`/play/${difficulties[currentDiffIndex + 1]}/1`);
+      } else {
+        // User has completed all levels
+        toast({
+          title: "Congratulations!",
+          description: "You've completed all available puzzles!",
+        });
+        
+        // Navigate back to level selection
+        setTimeout(() => {
+          navigate('/levels');
+        }, 2000);
       }
     }
   };
@@ -171,6 +230,15 @@ const GameBoard = () => {
   };
 
   const handleHintRequest = () => {
+    if (hintsUsed >= maxHints) {
+      toast({
+        title: "Hint Limit Reached",
+        description: "You've used all available hints for this level",
+        variant: "default",
+      });
+      return;
+    }
+    
     if (!selectedCell) {
       toast({
         title: "Select a Cell",
@@ -216,7 +284,7 @@ const GameBoard = () => {
     
     toast({
       title: "Hint Used",
-      description: `The correct value for this cell is ${correctValue}`,
+      description: `The correct value for this cell is ${correctValue}. ${maxHints - hintsUsed - 1} hints remaining.`,
       variant: "default",
     });
   };
@@ -253,7 +321,7 @@ const GameBoard = () => {
         
         <div className="flex items-center">
           <Star className="w-5 h-5 mr-2 text-amber-500" />
-          <span>{hintsUsed}</span>
+          <span>{hintsUsed}/{maxHints}</span>
         </div>
       </div>
       
@@ -274,8 +342,13 @@ const GameBoard = () => {
         )}
         
         <div className="flex justify-center">
-          <CustomButton variant="outline" Icon={HelpCircle} onClick={handleHintRequest}>
-            Hint
+          <CustomButton 
+            variant="outline" 
+            Icon={HelpCircle} 
+            onClick={handleHintRequest}
+            disabled={hintsUsed >= maxHints}
+          >
+            Hint ({maxHints - hintsUsed} left)
           </CustomButton>
         </div>
         
@@ -285,8 +358,11 @@ const GameBoard = () => {
               <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mb-2">
                 Puzzle Completed!
               </h3>
-              <p className="text-sm">
-                Time: {formatTime(timer)} • Hints Used: {hintsUsed}
+              <p className="text-sm mb-2">
+                Time: {formatTime(timer)} • Hints Used: {hintsUsed}/{maxHints}
+              </p>
+              <p className="text-xs text-stone-500">
+                Advancing to next level in 3 seconds...
               </p>
             </div>
           </GlassCard>
