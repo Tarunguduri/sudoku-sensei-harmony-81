@@ -5,13 +5,16 @@ import Logo from '@/components/Logo';
 import CustomButton from '@/components/CustomButton';
 import SudokuBoard from '@/components/SudokuBoard';
 import NumberPad from '@/components/NumberPad';
-import { ArrowLeft, Clock, Star, HelpCircle, Settings } from 'lucide-react';
+import ShuffleButton from '@/components/ShuffleButton';
+import { ArrowLeft, Clock, Star, HelpCircle, Settings, Volume2, VolumeX } from 'lucide-react';
 import { 
   samplePuzzles, 
   createPuzzleWithFixedCells, 
   isSudokuComplete, 
   solveSudoku,
-  createEmptyGrid as createEmptySudokuGrid
+  createEmptyGrid as createEmptySudokuGrid,
+  shuffleSudokuGrid,
+  updatePuzzlesWithUniqueSolutions
 } from '@/utils/sudoku';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,6 +22,7 @@ import SakuraBackground from '@/components/SakuraBackground';
 import GlassCard from '@/components/GlassCard';
 import CompletionPopup from '@/components/CompletionPopup';
 import { useMusicPlayer } from '@/hooks/use-music-player';
+import { useLanguage } from '@/components/settings/LanguageSettings';
 import { 
   Dialog, 
   DialogContent,
@@ -28,16 +32,23 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 
+// Ensure all puzzles have unique solutions
+updatePuzzlesWithUniqueSolutions();
+
 const GameBoard = () => {
   const { difficulty, level } = useParams<{ difficulty: string; level: string }>();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { 
     soundEnabled, 
+    volume,
     playNumberSelect, 
     playComplete, 
-    playHint 
+    playHint,
+    playError,
+    toggleSound
   } = useMusicPlayer();
   
   const [puzzle, setPuzzle] = useState<(number | null)[][]>([]);
@@ -46,10 +57,13 @@ const GameBoard = () => {
   const [timer, setTimer] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [shufflesUsed, setShufflesUsed] = useState(0);
   const [solution, setSolution] = useState<(number | null)[][] | null>(null);
   const [maxHints] = useState(3); // Maximum hints allowed per level
+  const [maxShuffles] = useState(3); // Maximum shuffles allowed per level
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [completedLevels, setCompletedLevels] = useState<string[]>([]);
+  const [originalPuzzle, setOriginalPuzzle] = useState<(number | null)[][]>([]);
 
   const getDifficultyKey = (): keyof typeof samplePuzzles => {
     switch (difficulty) {
@@ -87,6 +101,7 @@ const GameBoard = () => {
         if (samplePuzzles[difficultyKey] && samplePuzzles[difficultyKey][levelIndex]) {
           const initialPuzzle = JSON.parse(JSON.stringify(samplePuzzles[difficultyKey][levelIndex]));
           setPuzzle(initialPuzzle);
+          setOriginalPuzzle(initialPuzzle);
           setFixedCells(createPuzzleWithFixedCells(initialPuzzle));
           
           const solvedPuzzle = solveSudoku(initialPuzzle);
@@ -97,27 +112,28 @@ const GameBoard = () => {
           setTimer(0);
           setIsComplete(false);
           setHintsUsed(0);
+          setShufflesUsed(0);
           setShowCompletionDialog(false);
         } else {
           // Handle case where puzzle doesn't exist
           toast({
-            title: "Puzzle Not Found",
-            description: `Could not load puzzle for ${difficulty} level ${level}`,
+            title: t('puzzleNotFound'),
+            description: t('puzzleNotFoundMessage', { difficulty: difficulty, level: level }),
             variant: "destructive",
           });
         }
       } catch (error) {
         console.error("Error loading puzzle:", error);
         toast({
-          title: "Error Loading Puzzle",
-          description: "An error occurred while loading the puzzle",
+          title: t('errorLoadingPuzzle'),
+          description: t('errorLoadingPuzzleMessage'),
           variant: "destructive",
         });
       }
     };
     
     loadPuzzle();
-  }, [difficulty, level, toast]);
+  }, [difficulty, level, toast, t]);
 
   useEffect(() => {
     if (isComplete) return;
@@ -149,8 +165,41 @@ const GameBoard = () => {
       setPuzzle(newPuzzle);
       
       // Play sound effect if enabled
-      if (soundEnabled && value !== null) {
+      if (soundEnabled) {
         playNumberSelect();
+      }
+      
+      // Check for errors
+      let hasError = false;
+      for (let c = 0; c < 9; c++) {
+        if (c !== col && newPuzzle[row][c] === value && value !== null) {
+          hasError = true;
+          break;
+        }
+      }
+      
+      for (let r = 0; r < 9; r++) {
+        if (r !== row && newPuzzle[r][col] === value && value !== null) {
+          hasError = true;
+          break;
+        }
+      }
+      
+      const boxRow = Math.floor(row / 3) * 3;
+      const boxCol = Math.floor(col / 3) * 3;
+      
+      for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+          if ((r !== row || c !== col) && newPuzzle[r][c] === value && value !== null) {
+            hasError = true;
+            break;
+          }
+        }
+        if (hasError) break;
+      }
+      
+      if (hasError && value !== null && soundEnabled) {
+        playError();
       }
       
       // Check if the puzzle is complete
@@ -194,8 +243,8 @@ const GameBoard = () => {
       } else {
         // User has completed all levels
         toast({
-          title: "Congratulations!",
-          description: "You've completed all available puzzles!",
+          title: t('congratulations'),
+          description: t('completedAllPuzzles'),
         });
         
         // Navigate back to level selection
@@ -213,15 +262,15 @@ const GameBoard = () => {
         handleCellValueChange(row, col, num);
       } else {
         toast({
-          title: "Fixed Cell",
-          description: "This cell cannot be modified",
+          title: t('fixedCell'),
+          description: t('fixedCellMessage'),
           variant: "default",
         });
       }
     } else {
       toast({
-        title: "No Cell Selected",
-        description: "Please select a cell on the grid first",
+        title: t('noCellSelected'),
+        description: t('noCellSelectedMessage'),
         variant: "default",
       });
     }
@@ -230,8 +279,8 @@ const GameBoard = () => {
   const handleHintRequest = () => {
     if (hintsUsed >= maxHints) {
       toast({
-        title: "Hint Limit Reached",
-        description: "You've used all available hints for this level",
+        title: t('hintLimitReached'),
+        description: t('hintLimitMessage'),
         variant: "default",
       });
       return;
@@ -239,8 +288,8 @@ const GameBoard = () => {
     
     if (!selectedCell) {
       toast({
-        title: "Select a Cell",
-        description: "Please select a cell to receive a hint",
+        title: t('selectCell'),
+        description: t('selectCellMessage'),
         variant: "default",
       });
       return;
@@ -250,8 +299,8 @@ const GameBoard = () => {
     
     if (fixedCells[row][col]) {
       toast({
-        title: "Hint Not Available",
-        description: "Hints can only be used on empty or user-filled cells",
+        title: t('hintNotAvailable'),
+        description: t('hintNotAvailableMessage'),
         variant: "default",
       });
       return;
@@ -259,8 +308,8 @@ const GameBoard = () => {
     
     if (!solution) {
       toast({
-        title: "Hint Not Available",
-        description: "Solution is not available",
+        title: t('hintNotAvailable'),
+        description: t('solutionNotAvailable'),
         variant: "default",
       });
       return;
@@ -269,8 +318,8 @@ const GameBoard = () => {
     const correctValue = solution[row][col];
     if (correctValue === null) {
       toast({
-        title: "Hint Not Available",
-        description: "Could not determine the correct value for this cell",
+        title: t('hintNotAvailable'),
+        description: t('hintValueNotAvailable'),
         variant: "default",
       });
       return;
@@ -283,8 +332,42 @@ const GameBoard = () => {
     }
     
     toast({
-      title: "Hint Used",
-      description: `The correct value for this cell is ${correctValue}. ${maxHints - hintsUsed - 1} hints remaining.`,
+      title: t('hintUsed'),
+      description: t('hintUsedMessage', { value: correctValue, remaining: maxHints - hintsUsed - 1 }),
+      variant: "default",
+    });
+  };
+
+  // Function to handle shuffling the Sudoku grid
+  const handleShuffleRequest = () => {
+    if (shufflesUsed >= maxShuffles) {
+      toast({
+        title: t('shuffleLimitReached'),
+        description: t('shuffleLimitMessage'),
+        variant: "default",
+      });
+      return;
+    }
+    
+    // Increase the shuffle count
+    setShufflesUsed(shufflesUsed + 1);
+    
+    // Shuffle the grid
+    const shuffledPuzzle = shuffleSudokuGrid(originalPuzzle, fixedCells);
+    setPuzzle(shuffledPuzzle);
+    
+    // Re-calculate the solution for the shuffled puzzle
+    const newSolution = solveSudoku(shuffledPuzzle);
+    setSolution(newSolution);
+    
+    // Play sound effect
+    if (soundEnabled) {
+      playHint();
+    }
+    
+    toast({
+      title: t('boardShuffled'),
+      description: t('boardShuffledMessage', { remaining: maxShuffles - shufflesUsed - 1 }),
       variant: "default",
     });
   };
@@ -296,7 +379,7 @@ const GameBoard = () => {
       <header className="flex justify-between items-center mb-4 sm:mb-6 z-10">
         <Link to={`/levels/${difficulty}`}>
           <CustomButton variant="ghost" size="sm" Icon={ArrowLeft}>
-            Back
+            {t('back')}
           </CustomButton>
         </Link>
         <Logo size="sm" />
@@ -309,20 +392,31 @@ const GameBoard = () => {
       
       <div className="text-center mb-3 sm:mb-4 animate-fade-in z-10">
         <h1 className="text-xl sm:text-2xl font-bold capitalize">
-          {difficulty} - Level {level}
+          {t(difficulty?.toLowerCase() || 'beginner')} - {t('level')} {level}
         </h1>
       </div>
       
-      <div className="flex justify-center space-x-4 sm:space-x-6 mb-3 sm:mb-4 animate-fade-in z-10" style={{ animationDelay: '200ms' }}>
+      <div className="flex justify-between sm:justify-center sm:space-x-6 mb-3 sm:mb-4 animate-fade-in z-10" style={{ animationDelay: '200ms' }}>
         <div className="flex items-center">
-          <Clock className="w-5 h-5 mr-2 text-stone-500" />
+          <Clock className="w-5 h-5 mr-2 text-stone-500 dark:text-stone-400" />
           <span className="font-mono">{formatTime(timer)}</span>
         </div>
         
-        <div className="flex items-center">
+        <div className="flex items-center ml-4 sm:ml-0">
           <Star className="w-5 h-5 mr-2 text-amber-500" />
           <span>{hintsUsed}/{maxHints}</span>
         </div>
+        
+        <button 
+          onClick={() => toggleSound()} 
+          className="flex items-center ml-4 sm:ml-0 text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+        >
+          {soundEnabled ? (
+            <Volume2 className="w-5 h-5" />
+          ) : (
+            <VolumeX className="w-5 h-5" />
+          )}
+        </button>
       </div>
       
       <div className="flex flex-col items-center mx-auto w-full animate-scale-in z-10" style={{ animationDelay: '300ms' }}>
@@ -341,15 +435,21 @@ const GameBoard = () => {
           </div>
         )}
         
-        <div className="flex justify-center">
+        <div className="flex justify-center space-x-4">
           <CustomButton 
             variant="outline" 
             Icon={HelpCircle} 
             onClick={handleHintRequest}
             disabled={hintsUsed >= maxHints}
           >
-            Hint ({maxHints - hintsUsed} left)
+            {t('hint')} ({maxHints - hintsUsed} {t('left')})
           </CustomButton>
+          
+          <ShuffleButton 
+            onShuffle={handleShuffleRequest} 
+            shufflesUsed={shufflesUsed} 
+            maxShuffles={maxShuffles} 
+          />
         </div>
       </div>
 

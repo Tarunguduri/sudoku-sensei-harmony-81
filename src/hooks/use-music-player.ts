@@ -1,215 +1,259 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
-// Define the music options
-export const musicOptions = [
-  { id: 'sakura', name: 'Sakura Dreams', src: '/audio/sakura-dreams.mp3' },
-  { id: 'zen', name: 'Zen Garden', src: '/audio/zen-garden.mp3' },
-  { id: 'koto', name: 'Koto Melody', src: '/audio/koto-melody.mp3' },
+export type MusicTrack = {
+  id: string;
+  name: string;
+  path: string;
+};
+
+export const musicOptions: MusicTrack[] = [
+  { id: 'zen-garden', name: 'Zen Garden', path: '/audio/zen-garden.mp3' },
+  { id: 'koto-melody', name: 'Koto Melody', path: '/audio/koto-melody.mp3' },
+  { id: 'sakura-dreams', name: 'Sakura Dreams', path: '/audio/sakura-dreams.mp3' },
 ];
 
 export const useMusicPlayer = () => {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [volume, setVolume] = useState(80);
-  const [selectedMusic, setSelectedMusic] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
+    return localStorage.getItem('soundEnabled') === 'true';
+  });
+  const [selectedMusic, setSelectedMusic] = useState<string | null>(() => {
+    return localStorage.getItem('selectedMusic') || 'zen-garden';
+  });
+  const [volume, setVolume] = useState<number>(() => {
+    return parseInt(localStorage.getItem('volume') || '50');
+  });
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [audioError, setAudioError] = useState<string | null>(null);
-
-  // Sound effect refs to avoid recreating them on each call
-  const selectSoundRef = useRef<HTMLAudioElement | null>(null);
-  const completeSoundRef = useRef<HTMLAudioElement | null>(null);
-  const hintSoundRef = useRef<HTMLAudioElement | null>(null);
+  
+  const { toast } = useToast();
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRefs = useRef<{
+    select: HTMLAudioElement | null;
+    hint: HTMLAudioElement | null;
+    complete: HTMLAudioElement | null;
+    error: HTMLAudioElement | null;
+  }>({
+    select: null,
+    hint: null,
+    complete: null,
+    error: null,
+  });
 
   // Initialize audio elements
   useEffect(() => {
-    // Main music audio element
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      
-      // Add error handling
-      audioRef.current.addEventListener('error', (e) => {
-        console.error('Audio error:', e);
-        setAudioError('Failed to load audio file');
-        setIsPlaying(false);
-      });
-      
-      // Add load handling
-      audioRef.current.addEventListener('canplaythrough', () => {
-        setAudioError(null);
-      });
-    }
-    
-    // Sound effects
-    if (!selectSoundRef.current) {
-      selectSoundRef.current = new Audio('/audio/select.mp3');
-      selectSoundRef.current.volume = 0.3;
-    }
-    
-    if (!completeSoundRef.current) {
-      completeSoundRef.current = new Audio('/audio/complete.mp3');
-      completeSoundRef.current.volume = 0.4;
-    }
-    
-    if (!hintSoundRef.current) {
-      hintSoundRef.current = new Audio('/audio/hint.mp3');
-      hintSoundRef.current.volume = 0.3;
-    }
-    
-    // Load saved settings from localStorage
-    const savedSound = localStorage.getItem('soundEnabled');
-    const savedVolume = localStorage.getItem('volume');
-    const savedMusic = localStorage.getItem('selectedMusic');
-    
-    if (savedSound) setSoundEnabled(savedSound === 'true');
-    if (savedVolume) setVolume(parseInt(savedVolume));
-    if (savedMusic) setSelectedMusic(savedMusic);
-    
-    if (savedMusic && savedSound === 'true') {
-      const musicTrack = musicOptions.find(track => track.id === savedMusic);
-      if (musicTrack) {
-        audioRef.current.src = musicTrack.src;
-        audioRef.current.loop = true;
-        audioRef.current.volume = parseInt(savedVolume || '80') / 100;
+    try {
+      // Setup music player
+      if (!musicRef.current) {
+        musicRef.current = new Audio();
+        musicRef.current.loop = true;
+        musicRef.current.volume = volume / 100;
         
-        // Auto-play if selected (may be blocked by browser)
-        audioRef.current.play().catch(error => {
-          console.error('Audio playback failed:', error);
-          if (error.name === 'NotAllowedError') {
-            setAudioError('Browser blocked autoplay. Click play to start music.');
-          } else if (error.name === 'NotSupportedError') {
-            setAudioError('Audio format not supported by your browser.');
-          } else {
-            setAudioError('Failed to play audio: ' + error.message);
+        // Add error handling
+        musicRef.current.addEventListener('error', (e) => {
+          console.error('Music playback error:', e);
+          setAudioError('Could not play background music');
+        });
+      }
+      
+      // Setup sound effects
+      if (!sfxRefs.current.select) {
+        sfxRefs.current.select = new Audio('/audio/select.mp3');
+        sfxRefs.current.select.volume = volume / 100;
+      }
+      
+      if (!sfxRefs.current.hint) {
+        sfxRefs.current.hint = new Audio('/audio/hint.mp3');
+        sfxRefs.current.hint.volume = volume / 100;
+      }
+      
+      if (!sfxRefs.current.complete) {
+        sfxRefs.current.complete = new Audio('/audio/complete.mp3');
+        sfxRefs.current.complete.volume = volume / 100;
+      }
+      
+      if (!sfxRefs.current.error) {
+        sfxRefs.current.error = new Audio('/audio/error.mp3');
+        sfxRefs.current.error.volume = volume / 100;
+      }
+      
+      // Set the currently selected music if sound is enabled
+      if (selectedMusic && soundEnabled) {
+        const track = musicOptions.find(track => track.id === selectedMusic);
+        if (track && musicRef.current) {
+          musicRef.current.src = track.path;
+          
+          // Auto-play if previously playing
+          if (isPlaying) {
+            musicRef.current.play().catch(err => {
+              console.error('Error auto-playing music:', err);
+              setIsPlaying(false);
+            });
           }
+        }
+      }
+      
+      return () => {
+        // Cleanup audio elements on unmount
+        if (musicRef.current) {
+          musicRef.current.pause();
+          musicRef.current = null;
+        }
+        
+        Object.keys(sfxRefs.current).forEach(key => {
+          const sfxKey = key as keyof typeof sfxRefs.current;
+          if (sfxRefs.current[sfxKey]) {
+            sfxRefs.current[sfxKey]!.pause();
+            sfxRefs.current[sfxKey] = null;
+          }
+        });
+      };
+    } catch (error) {
+      console.error('Error initializing audio:', error);
+      setAudioError('Failed to initialize audio system');
+      return () => {};
+    }
+  }, [selectedMusic, soundEnabled, isPlaying, volume]);
+
+  // Handle volume changes
+  useEffect(() => {
+    if (musicRef.current) {
+      musicRef.current.volume = volume / 100;
+    }
+    
+    Object.keys(sfxRefs.current).forEach(key => {
+      const sfxKey = key as keyof typeof sfxRefs.current;
+      if (sfxRefs.current[sfxKey]) {
+        sfxRefs.current[sfxKey]!.volume = volume / 100;
+      }
+    });
+    
+    // Save volume preference
+    localStorage.setItem('volume', volume.toString());
+  }, [volume]);
+
+  // Toggle sound on/off
+  const handleSoundToggle = (enabled: boolean) => {
+    setSoundEnabled(enabled);
+    localStorage.setItem('soundEnabled', enabled.toString());
+    
+    if (!enabled && musicRef.current && isPlaying) {
+      musicRef.current.pause();
+      setIsPlaying(false);
+    } else if (enabled && musicRef.current && selectedMusic) {
+      const track = musicOptions.find(track => track.id === selectedMusic);
+      if (track) {
+        musicRef.current.src = track.path;
+        musicRef.current.play().catch(err => {
+          console.error('Error playing music after enabling sound:', err);
         });
         setIsPlaying(true);
       }
     }
-    
-    return () => {
-      // Clean up all audio elements
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener('error', () => {});
-        audioRef.current.removeEventListener('canplaythrough', () => {});
-      }
-    };
-  }, []);
+  };
 
-  // Function to play individual sound effects
-  const playNumberSelect = () => {
-    if (soundEnabled && selectSoundRef.current) {
-      // Clone and play to allow overlapping sounds
-      const sound = selectSoundRef.current.cloneNode() as HTMLAudioElement;
-      sound.volume = volume / 100 * 0.3; // Scale with master volume
-      sound.play().catch(err => console.log('Audio play failed', err));
+  // Handle volume slider changes
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseInt(e.target.value);
+    setVolume(newVolume);
+  };
+
+  // Select background music track
+  const handleMusicSelect = (trackId: string) => {
+    setSelectedMusic(trackId);
+    localStorage.setItem('selectedMusic', trackId);
+    
+    if (soundEnabled && musicRef.current) {
+      const track = musicOptions.find(track => track.id === trackId);
+      if (track) {
+        musicRef.current.src = track.path;
+        if (isPlaying) {
+          musicRef.current.play().catch(err => {
+            console.error('Error playing newly selected music:', err);
+            setIsPlaying(false);
+          });
+        }
+      }
     }
   };
 
-  const playComplete = () => {
-    if (soundEnabled && completeSoundRef.current) {
-      const sound = completeSoundRef.current.cloneNode() as HTMLAudioElement;
-      sound.volume = volume / 100 * 0.4; // Scale with master volume
-      sound.play().catch(err => console.log('Audio play failed', err));
+  // Toggle music playback
+  const togglePlayback = () => {
+    if (!soundEnabled) {
+      toast({
+        title: "Sound is disabled",
+        description: "Enable sound in settings to play music",
+        variant: "default",
+      });
+      return;
+    }
+    
+    if (musicRef.current && selectedMusic) {
+      if (isPlaying) {
+        musicRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        const track = musicOptions.find(track => track.id === selectedMusic);
+        if (track) {
+          musicRef.current.src = track.path;
+          musicRef.current.play().catch(err => {
+            console.error('Error toggling music playback:', err);
+            setIsPlaying(false);
+            setAudioError('Could not play audio. Try interacting with the page first.');
+          });
+          setIsPlaying(true);
+        }
+      }
+    }
+  };
+
+  // Play sound effects
+  const playNumberSelect = () => {
+    if (soundEnabled && sfxRefs.current.select) {
+      sfxRefs.current.select.currentTime = 0;
+      sfxRefs.current.select.play().catch(err => {
+        console.error('Error playing select sound:', err);
+      });
     }
   };
 
   const playHint = () => {
-    if (soundEnabled && hintSoundRef.current) {
-      const sound = hintSoundRef.current.cloneNode() as HTMLAudioElement;
-      sound.volume = volume / 100 * 0.3; // Scale with master volume
-      sound.play().catch(err => console.log('Audio play failed', err));
-    }
-  };
-
-  const handleSoundToggle = (checked: boolean) => {
-    setSoundEnabled(checked);
-    localStorage.setItem('soundEnabled', checked.toString());
-    
-    if (checked && selectedMusic && audioRef.current) {
-      audioRef.current.volume = volume / 100;
-      audioRef.current.play().catch(error => {
-        console.error('Audio playback failed:', error);
-        setAudioError('Failed to play audio: ' + error.message);
+    if (soundEnabled && sfxRefs.current.hint) {
+      sfxRefs.current.hint.currentTime = 0;
+      sfxRefs.current.hint.play().catch(err => {
+        console.error('Error playing hint sound:', err);
       });
-      setIsPlaying(true);
-    } else if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
     }
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseInt(e.target.value);
-    setVolume(newVolume);
-    localStorage.setItem('volume', newVolume.toString());
-    
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume / 100;
-    }
-  };
-
-  const handleMusicSelect = (value: string) => {
-    setSelectedMusic(value);
-    localStorage.setItem('selectedMusic', value);
-    setAudioError(null);
-    
-    if (soundEnabled && audioRef.current) {
-      const musicTrack = musicOptions.find(track => track.id === value);
-      if (musicTrack) {
-        // Reset audio element
-        if (audioRef.current.src) {
-          audioRef.current.pause();
-        }
-        
-        // Set new source and play
-        audioRef.current.src = musicTrack.src;
-        audioRef.current.loop = true;
-        audioRef.current.volume = volume / 100;
-        
-        // Test if audio exists
-        audioRef.current.addEventListener('loadeddata', () => {
-          console.log('Audio loaded successfully');
-        });
-        
-        audioRef.current.load();
-        audioRef.current.play().catch(error => {
-          console.error('Audio playback failed:', error);
-          if (error.name === 'NotAllowedError') {
-            setAudioError('Browser blocked autoplay. Click play to start music.');
-          } else if (error.name === 'NotSupportedError') {
-            setAudioError('Audio format not supported by your browser.');
-          } else {
-            setAudioError('Failed to play audio: ' + error.message);
-          }
-        });
-        setIsPlaying(true);
-      }
+  const playComplete = () => {
+    if (soundEnabled && sfxRefs.current.complete) {
+      sfxRefs.current.complete.currentTime = 0;
+      sfxRefs.current.complete.play().catch(err => {
+        console.error('Error playing complete sound:', err);
+      });
     }
   };
   
-  const togglePlayback = () => {
-    if (!selectedMusic || !soundEnabled) return;
-    
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.play().catch(error => {
-          console.error('Audio playback failed:', error);
-          setAudioError('Failed to play audio: ' + error.message);
-        });
-        setIsPlaying(true);
-      }
+  const playError = () => {
+    if (soundEnabled && sfxRefs.current.error) {
+      sfxRefs.current.error.currentTime = 0;
+      sfxRefs.current.error.play().catch(err => {
+        console.error('Error playing error sound:', err);
+      });
     }
+  };
+  
+  // Simple toggle function for quick access
+  const toggleSound = () => {
+    handleSoundToggle(!soundEnabled);
   };
 
   return {
     soundEnabled,
-    volume,
     selectedMusic,
+    volume,
     isPlaying,
     audioError,
     handleSoundToggle,
@@ -217,7 +261,9 @@ export const useMusicPlayer = () => {
     handleMusicSelect,
     togglePlayback,
     playNumberSelect,
+    playHint,
     playComplete,
-    playHint
+    playError,
+    toggleSound
   };
 };

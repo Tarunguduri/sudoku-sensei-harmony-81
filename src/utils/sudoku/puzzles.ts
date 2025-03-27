@@ -65,7 +65,7 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
     ],
   ],
   novice: [
-    // Level 6 (Shinjin – Novice)
+    // Level 1 (Shinjin – Novice)
     [
       [null, null, null, 2, 6, null, 7, null, 1],
       [6, 8, null, null, 7, null, null, 9, null],
@@ -77,7 +77,7 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [null, 4, null, null, 5, null, null, 3, 6],
       [7, null, 3, null, 1, 8, null, null, null],
     ],
-    // Level 7 (Shinjin – Novice)
+    // Level 2 (Shinjin – Novice)
     [
       [null, 2, null, null, 9, null, 6, null, null],
       [null, null, 6, 3, null, 8, null, null, 7],
@@ -89,43 +89,45 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [4, null, null, 5, null, 7, 2, null, null],
       [null, null, 8, null, 6, null, null, 9, null],
     ],
-    // Add more novice levels...
+    // Level 3 (Shinjin – Novice)
     [
-      [null, null, null, 2, 6, null, 7, null, 1],
-      [6, 8, null, null, 7, null, null, 9, null],
-      [1, 9, null, null, null, 4, 5, null, null],
-      [8, 2, null, 1, null, null, null, 4, null],
-      [null, null, 4, 6, null, 2, 9, null, null],
-      [null, 5, null, null, null, 3, null, 2, 8],
-      [null, null, 9, 3, null, null, null, 7, 4],
-      [null, 4, null, null, 5, null, null, 3, 6],
-      [7, null, 3, null, 1, 8, null, null, null],
+      [5, null, null, 6, null, null, null, null, 1],
+      [null, 7, null, null, 2, null, 5, null, null],
+      [null, null, 9, null, null, 8, null, 3, null],
+      [null, 5, null, null, 6, null, null, 4, null],
+      [null, null, null, 2, null, 3, null, null, null],
+      [null, 8, null, null, 5, null, null, 2, null],
+      [null, 3, null, 9, null, null, 4, null, null],
+      [null, null, 8, null, 7, null, null, 6, null],
+      [2, null, null, null, null, 4, null, null, 9],
     ],
+    // Level 4 (Shinjin – Novice)
     [
-      [null, 2, null, null, 9, null, 6, null, null],
-      [null, null, 6, 3, null, 8, null, null, 7],
-      [1, null, null, null, null, null, null, 2, null],
-      [8, null, null, 1, null, 2, null, null, 3],
-      [null, 9, null, null, null, null, null, 5, null],
-      [7, null, null, 8, null, 3, null, null, 4],
-      [null, 6, null, null, null, null, null, null, 1],
-      [4, null, null, 5, null, 7, 2, null, null],
-      [null, null, 8, null, 6, null, null, 9, null],
+      [6, null, null, null, 4, null, null, null, 9],
+      [null, 2, null, null, null, 7, null, 4, null],
+      [null, null, 8, 6, null, null, 2, null, null],
+      [null, null, 3, null, 1, null, 4, null, null],
+      [null, 5, null, null, null, null, null, 8, null],
+      [null, null, 7, null, 2, null, 1, null, null],
+      [null, null, 5, null, null, 1, 9, null, null],
+      [null, 4, null, 8, null, null, null, 1, null],
+      [9, null, null, null, 7, null, null, null, 2],
     ],
+    // Level 5 (Shinjin – Novice)
     [
-      [null, null, null, 2, 6, null, 7, null, 1],
-      [6, 8, null, null, 7, null, null, 9, null],
-      [1, 9, null, null, null, 4, 5, null, null],
-      [8, 2, null, 1, null, null, null, 4, null],
-      [null, null, 4, 6, null, 2, 9, null, null],
-      [null, 5, null, null, null, 3, null, 2, 8],
-      [null, null, 9, 3, null, null, null, 7, 4],
-      [null, 4, null, null, 5, null, null, 3, 6],
-      [7, null, 3, null, 1, 8, null, null, null],
+      [null, null, null, 4, 9, null, null, null, 3],
+      [null, 4, null, null, null, 6, null, 1, null],
+      [3, null, 9, null, null, null, 7, null, null],
+      [6, null, null, null, 8, null, null, null, 5],
+      [null, 9, null, null, null, null, null, 7, null],
+      [7, null, null, null, 1, null, null, null, 4],
+      [null, null, 3, null, null, null, 9, null, 1],
+      [null, 5, null, 9, null, null, null, 8, null],
+      [4, null, null, null, 3, 7, null, null, null],
     ],
   ],
   intermediate: [
-    // Level 11 (Chuudan – Intermediate)
+    // Level 1 (Chuudan – Intermediate)
     [
       [null, 2, null, 6, null, 8, null, null, null],
       [5, 8, null, null, null, 9, 7, null, null],
@@ -137,54 +139,57 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [null, null, 9, 8, null, null, null, 3, 6],
       [null, null, null, 3, null, 6, null, 9, null],
     ],
-    // Add more intermediate levels...
+    // Level 2 (Chuudan – Intermediate)
     [
-      [null, 2, null, 6, null, 8, null, null, null],
-      [5, 8, null, null, null, 9, 7, null, null],
-      [null, null, null, null, 4, null, null, null, null],
-      [3, 7, null, null, null, null, 5, null, null],
-      [6, null, null, null, null, null, null, null, 4],
-      [null, null, 8, null, null, null, null, 1, 3],
-      [null, null, null, null, 2, null, null, null, null],
-      [null, null, 9, 8, null, null, null, 3, 6],
-      [null, null, null, 3, null, 6, null, 9, null],
+      [null, null, null, null, 7, null, 8, null, null],
+      [null, null, 4, null, null, 3, null, 7, 6],
+      [null, null, null, null, null, null, null, null, 9],
+      [null, 5, null, null, 9, null, null, null, null],
+      [null, null, 7, 8, null, 1, 4, null, null],
+      [null, null, null, null, 4, null, null, 2, null],
+      [3, null, null, null, null, null, null, null, null],
+      [9, 4, null, 3, null, null, 1, null, null],
+      [null, null, 6, null, 1, null, null, null, null],
     ],
+    // Level 3 (Chuudan – Intermediate)
     [
-      [null, 2, null, 6, null, 8, null, null, null],
-      [5, 8, null, null, null, 9, 7, null, null],
-      [null, null, null, null, 4, null, null, null, null],
-      [3, 7, null, null, null, null, 5, null, null],
-      [6, null, null, null, null, null, null, null, 4],
-      [null, null, 8, null, null, null, null, 1, 3],
-      [null, null, null, null, 2, null, null, null, null],
-      [null, null, 9, 8, null, null, null, 3, 6],
-      [null, null, null, 3, null, 6, null, 9, null],
+      [null, null, null, 9, null, null, null, null, 3],
+      [null, null, 3, null, 5, null, 8, null, null],
+      [9, 6, null, null, null, null, null, 5, 7],
+      [null, null, null, null, null, 7, 5, null, null],
+      [7, null, null, null, null, null, null, null, 8],
+      [null, null, null, null, null, null, null, 6, null],
+      [5, 4, null, null, null, null, null, 3, 1],
+      [null, null, 1, null, 3, null, 4, null, null],
+      [8, null, null, null, null, 5, null, null, null],
     ],
+    // Level 4 (Chuudan – Intermediate)
     [
-      [null, 2, null, 6, null, 8, null, null, null],
-      [5, 8, null, null, null, 9, 7, null, null],
-      [null, null, null, null, 4, null, null, null, null],
-      [3, 7, null, null, null, null, 5, null, null],
-      [6, null, null, null, null, null, null, null, 4],
-      [null, null, 8, null, null, null, null, 1, 3],
-      [null, null, null, null, 2, null, null, null, null],
-      [null, null, 9, 8, null, null, null, 3, 6],
-      [null, null, null, 3, null, 6, null, 9, null],
+      [7, null, null, null, null, null, null, null, 4],
+      [null, 3, null, null, null, 9, null, 6, null],
+      [null, null, null, null, 6, null, 8, null, null],
+      [null, null, 5, 7, null, null, null, null, null],
+      [null, null, null, null, 9, null, null, null, null],
+      [null, null, null, null, null, 8, 2, null, null],
+      [null, null, 3, null, 2, null, null, null, null],
+      [null, 5, null, 1, null, null, null, 4, null],
+      [4, null, null, null, null, null, null, null, 3],
     ],
+    // Level 5 (Chuudan – Intermediate)
     [
-      [null, 2, null, 6, null, 8, null, null, null],
-      [5, 8, null, null, null, 9, 7, null, null],
-      [null, null, null, null, 4, null, null, null, null],
-      [3, 7, null, null, null, null, 5, null, null],
-      [6, null, null, null, null, null, null, null, 4],
-      [null, null, 8, null, null, null, null, 1, 3],
-      [null, null, null, null, 2, null, null, null, null],
-      [null, null, 9, 8, null, null, null, 3, 6],
-      [null, null, null, 3, null, 6, null, 9, null],
+      [2, null, null, null, null, null, null, 6, null],
+      [null, null, null, 8, null, null, 4, null, null],
+      [null, 7, null, null, 1, null, null, null, 3],
+      [null, null, null, 6, null, null, null, 9, null],
+      [null, null, 2, null, null, null, 8, null, null],
+      [null, 4, null, null, null, 5, null, null, null],
+      [8, null, null, null, 4, null, null, 2, null],
+      [null, null, 5, null, null, 9, null, null, null],
+      [null, 9, null, null, null, null, null, null, 7],
     ],
   ],
   skilled: [
-    // Level 16 (Takumi – Skilled)
+    // Level 1 (Takumi – Skilled)
     [
       [null, null, null, 6, null, null, 4, null, null],
       [7, null, null, null, null, 3, 6, null, null],
@@ -196,54 +201,57 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [9, null, 3, null, null, null, null, null, null],
       [null, 2, null, null, null, null, 1, null, null],
     ],
-    // Add more skilled levels...
+    // Level 2 (Takumi – Skilled)
     [
-      [null, null, null, 6, null, null, 4, null, null],
-      [7, null, null, null, null, 3, 6, null, null],
-      [null, null, null, null, 9, 1, null, 8, null],
-      [null, null, null, null, null, null, null, null, null],
-      [null, 5, null, 1, 8, null, null, null, 3],
-      [null, null, null, 3, null, 6, null, 4, 5],
-      [null, 4, null, 2, null, null, null, 6, null],
-      [9, null, 3, null, null, null, null, null, null],
-      [null, 2, null, null, null, null, 1, null, null],
+      [null, null, null, null, null, null, null, null, 6],
+      [8, null, 4, null, null, null, 5, null, null],
+      [null, null, null, 1, 8, null, null, null, null],
+      [null, null, null, null, null, 9, 3, null, null],
+      [null, null, null, null, 7, null, null, null, null],
+      [null, null, 1, 3, null, null, null, null, null],
+      [null, null, null, null, 4, 5, null, null, null],
+      [null, null, 8, null, null, null, 6, null, 5],
+      [5, null, null, null, null, null, null, null, null],
     ],
+    // Level 3 (Takumi – Skilled)
     [
-      [null, null, null, 6, null, null, 4, null, null],
-      [7, null, null, null, null, 3, 6, null, null],
-      [null, null, null, null, 9, 1, null, 8, null],
-      [null, null, null, null, null, null, null, null, null],
-      [null, 5, null, 1, 8, null, null, null, 3],
-      [null, null, null, 3, null, 6, null, 4, 5],
-      [null, 4, null, 2, null, null, null, 6, null],
-      [9, null, 3, null, null, null, null, null, null],
-      [null, 2, null, null, null, null, 1, null, null],
+      [null, null, null, null, null, null, null, 8, 5],
+      [null, null, null, 2, null, null, null, null, null],
+      [null, null, 2, null, null, 1, null, null, 9],
+      [null, 5, null, null, null, 7, null, null, null],
+      [null, null, 8, null, null, null, 3, null, null],
+      [null, null, null, 6, null, null, null, 2, null],
+      [2, null, null, 9, null, null, 6, null, null],
+      [null, null, null, null, null, 6, null, null, null],
+      [8, 3, null, null, null, null, null, null, null],
     ],
+    // Level 4 (Takumi – Skilled)
     [
-      [null, null, null, 6, null, null, 4, null, null],
-      [7, null, null, null, null, 3, 6, null, null],
-      [null, null, null, null, 9, 1, null, 8, null],
-      [null, null, null, null, null, null, null, null, null],
-      [null, 5, null, 1, 8, null, null, null, 3],
-      [null, null, null, 3, null, 6, null, 4, 5],
-      [null, 4, null, 2, null, null, null, 6, null],
-      [9, null, 3, null, null, null, null, null, null],
-      [null, 2, null, null, null, null, 1, null, null],
+      [null, null, 7, null, null, null, 8, null, null],
+      [null, null, null, null, 3, null, null, null, null],
+      [null, null, null, 9, null, 6, null, null, null],
+      [null, null, null, null, null, null, null, 7, null],
+      [8, null, null, null, 1, null, null, null, 5],
+      [null, 6, null, null, null, null, null, null, null],
+      [null, null, null, 8, null, 3, null, null, null],
+      [null, null, null, null, 4, null, null, null, null],
+      [null, null, 9, null, null, null, 2, null, null],
     ],
+    // Level 5 (Takumi – Skilled)
     [
-      [null, null, null, 6, null, null, 4, null, null],
-      [7, null, null, null, null, 3, 6, null, null],
-      [null, null, null, null, 9, 1, null, 8, null],
-      [null, null, null, null, null, null, null, null, null],
-      [null, 5, null, 1, 8, null, null, null, 3],
-      [null, null, null, 3, null, 6, null, 4, 5],
-      [null, 4, null, 2, null, null, null, 6, null],
-      [9, null, 3, null, null, null, null, null, null],
-      [null, 2, null, null, null, null, 1, null, null],
+      [null, null, 5, null, null, null, null, null, null],
+      [null, null, null, null, 1, null, null, 8, null],
+      [null, 8, null, null, null, 5, 2, null, null],
+      [null, null, null, null, null, null, null, 7, null],
+      [null, 3, null, 9, null, 4, null, 7, null],
+      [7, null, null, 8, null, null, null, null, null],
+      [null, null, 6, 7, null, null, null, 3, null],
+      [null, 5, null, null, 9, null, null, null, null],
+      [null, null, null, null, null, null, 6, null, null],
     ],
   ],
   expert: [
-    // Level 21 (Sensei – Expert)
+    // Level 1 (Sensei – Expert)
     [
       [null, null, null, null, null, null, null, null, null],
       [null, null, null, null, null, 3, null, 8, 5],
@@ -255,54 +263,57 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [null, null, 2, null, 1, null, null, null, null],
       [null, null, null, null, 4, null, null, null, 9],
     ],
-    // Add more expert levels...
+    // Level 2 (Sensei – Expert)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, null, null, null, null, null, null, 1],
+      [null, null, null, null, null, null, null, 3, null],
+      [null, null, null, null, null, null, null, null, 7],
+      [null, null, null, null, 9, null, null, null, null],
+      [null, null, null, 4, null, null, 6, null, null],
+      [null, null, null, null, null, null, null, null, null],
+      [null, 5, null, 2, null, null, null, null, null],
+      [null, null, 8, null, null, null, null, null, null],
     ],
+    // Level 3 (Sensei – Expert)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, 9, null, null, null, null, null, 7],
+      [null, null, null, null, null, null, 3, null, null],
+      [null, null, null, null, null, null, null, null, 8],
+      [null, 8, null, null, 4, null, null, null, null],
+      [6, null, null, 2, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 5, null],
+      [null, null, null, null, null, 9, null, null, null],
+      [5, null, 7, null, null, null, null, null, null],
     ],
+    // Level 4 (Sensei – Expert)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, 2, null, null, null, null, null, 4],
+      [null, null, null, null, null, 3, null, 7, null],
+      [null, null, null, null, 6, null, 5, null, null],
+      [null, null, null, null, null, null, null, null, 9],
+      [null, null, 7, null, null, 5, null, null, null],
+      [null, 6, null, 1, null, null, null, null, null],
+      [9, null, null, null, null, null, 2, null, null],
+      [null, null, null, null, null, null, null, null, null],
     ],
+    // Level 5 (Sensei – Expert)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, 5, null, null, null, null],
+      [null, null, null, null, null, null, 3, null, null],
+      [null, null, 2, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 7, null],
+      [null, null, null, 6, null, null, null, null, null],
+      [null, 1, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 8, null, null, null],
     ],
   ],
   master: [
-    // Level 26 (Shogun – Master)
+    // Level 1 (Shogun – Master)
     [
       [null, null, null, null, null, null, null, null, null],
       [null, null, null, null, null, 3, null, 8, 5],
@@ -314,88 +325,64 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [null, null, 2, null, 1, null, null, null, null],
       [null, null, null, null, 4, null, null, null, 9],
     ],
-    // Add more master levels
+    // Level 2 (Shogun – Master)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, null, null, null, null, null, null, 1],
+      [null, null, null, null, null, null, null, 3, null],
+      [null, null, null, null, null, null, null, null, 7],
+      [null, null, null, null, 9, null, null, null, null],
+      [null, null, null, 4, null, null, 6, null, null],
+      [null, null, null, null, null, null, null, null, null],
+      [null, 5, null, 2, null, null, null, null, null],
+      [null, null, 8, null, null, null, null, null, null],
     ],
+    // Level 3 (Shogun – Master)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 6, null, 2, null],
+      [null, null, 9, null, null, null, null, null, null],
+      [null, null, null, null, 7, null, null, null, 8],
+      [null, null, null, null, null, null, 1, null, null],
+      [null, null, null, 5, null, null, null, null, null],
+      [null, 3, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, 4, null, null],
     ],
+    // Level 4 (Shogun – Master)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, 7, null, null],
+      [null, null, 1, null, null, null, null, null, null],
+      [null, null, null, null, 2, null, null, null, null],
+      [null, null, null, 9, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 5, null],
+      [null, null, null, null, null, 4, null, null, 6],
+      [null, null, null, null, null, null, null, null, null],
     ],
+    // Level 5 (Shogun – Master)
     [
       [null, null, null, null, null, null, null, null, null],
-      [null, null, null, null, null, 3, null, 8, 5],
-      [null, null, 1, null, 2, null, null, null, null],
-      [null, null, null, 5, null, 7, null, null, null],
-      [null, null, 4, null, null, null, 1, null, null],
-      [null, 9, null, null, null, null, null, null, null],
-      [5, null, null, null, null, null, null, 7, 3],
-      [null, null, 2, null, 1, null, null, null, null],
-      [null, null, null, null, 4, null, null, null, 9],
+      [null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, 5, null, null, null, null],
+      [null, null, null, null, null, null, 3, null, null],
+      [null, null, 2, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, 7, null],
+      [null, null, null, 6, null, null, null, null, null],
+      [null, 1, null, null, null, null, null, null, null],
+      [null, null, null, null, null, 8, null, null, null],
     ],
   ],
 };
 
 // Function to populate remaining levels in each difficulty category
 export const createRemainingPuzzles = () => {
-  const updatedPuzzles = { ...samplePuzzles };
-  
-  // Ensure each difficulty has 5 puzzles
-  Object.keys(updatedPuzzles).forEach(difficulty => {
-    const key = difficulty as DifficultyLevel;
-    
-    // If less than 5 puzzles, generate additional ones
-    while (updatedPuzzles[key].length < 5) {
-      // For simplicity, we'll use a variation of an existing puzzle
-      const basePuzzle = [...updatedPuzzles[key][0]];
-      
-      // Create a slight variation
-      for (let i = 0; i < 10; i++) {
-        const row = Math.floor(Math.random() * 9);
-        const col = Math.floor(Math.random() * 9);
-        
-        if (basePuzzle[row][col] !== null) {
-          // Randomly make some filled cells empty
-          if (Math.random() > 0.7) {
-            basePuzzle[row][col] = null;
-          }
-        }
-      }
-      
-      updatedPuzzles[key].push(basePuzzle);
-    }
-  });
-  
-  return updatedPuzzles;
+  // All puzzles are now pre-defined, no need to generate more
+  console.log("All puzzles are defined and ready");
 };
 
-// Solutions for the sample puzzles
+// Solutions for the sample puzzles (just showing a few examples)
 export const sampleSolutions = {
   beginner: [
     // Solution for Level 1
@@ -410,12 +397,29 @@ export const sampleSolutions = {
       [2, 8, 7, 4, 1, 9, 6, 3, 5],
       [3, 4, 5, 2, 8, 6, 1, 7, 9],
     ],
-    // Add other solutions as needed
+    // Solutions for other levels can be computed at runtime with solveSudoku
   ],
-  // Add solutions for other difficulty levels as needed
+  // Other difficulties follow the same pattern - solutions can be computed at runtime
   novice: [[]],
   intermediate: [[]],
   skilled: [[]],
   expert: [[]],
   master: [[]],
+};
+
+// Dynamically solve each puzzle to ensure they all have valid solutions
+export const validateAllPuzzles = () => {
+  let allValid = true;
+  
+  Object.entries(samplePuzzles).forEach(([difficulty, puzzles]) => {
+    puzzles.forEach((puzzle, index) => {
+      const solution = solveSudoku([...puzzle.map(row => [...row])]);
+      if (!solution) {
+        console.error(`Puzzle ${index + 1} in ${difficulty} has no solution`);
+        allValid = false;
+      }
+    });
+  });
+  
+  return allValid;
 };

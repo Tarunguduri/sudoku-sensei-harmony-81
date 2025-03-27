@@ -6,3 +6,4 @@ export * from './validator';
 export * from './solver';
 export * from './puzzles';
 export * from './generator';
+export * from './shuffler';

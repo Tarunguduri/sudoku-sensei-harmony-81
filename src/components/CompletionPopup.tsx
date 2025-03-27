@@ -11,6 +11,7 @@ import { Trophy, Star, Clock, ChevronRight, Home } from 'lucide-react';
 import CustomButton from '@/components/CustomButton';
 import GlassCard from '@/components/GlassCard';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '@/components/settings/LanguageSettings';
 
 interface CompletionPopupProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
   time,
   hintsUsed,
 }) => {
+  const { t } = useLanguage();
+  
   // Trigger confetti effect when dialog opens
   React.useEffect(() => {
     if (isOpen) {
@@ -123,10 +126,10 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
             </div>
           </div>
           <DialogTitle className="text-2xl text-center font-bold">
-            Congratulations! 🎉
+            {t('congratulations')}! 🎉
           </DialogTitle>
           <p className="text-center text-sakura-600 dark:text-sakura-400">
-            You've completed {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Level {level}
+            {t('youveCompleted')} {t(difficulty.toLowerCase())} {t('level')} {level}
           </p>
         </DialogHeader>
         
@@ -134,12 +137,12 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col items-center">
               <Clock className="h-6 w-6 text-sakura-500 mb-1" />
-              <span className="text-sm text-muted-foreground">Time</span>
+              <span className="text-sm text-muted-foreground">{t('time')}</span>
               <span className="font-bold">{formatTime(time)}</span>
             </div>
             <div className="flex flex-col items-center">
               <Star className="h-6 w-6 text-amber-500 mb-1" />
-              <span className="text-sm text-muted-foreground">Hints Used</span>
+              <span className="text-sm text-muted-foreground">{t('hintsUsed')}</span>
               <span className="font-bold">{hintsUsed}/3</span>
             </div>
           </div>
@@ -170,7 +173,7 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
             onClick={onNextLevel}
             className="flex-1 bg-sakura-500 hover:bg-sakura-600"
           >
-            Next Level
+            {t('nextLevel')}
           </CustomButton>
           <CustomButton 
             variant="outline" 
@@ -178,7 +181,7 @@ const CompletionPopup: React.FC<CompletionPopupProps> = ({
             onClick={onMenu}
             className="flex-1"
           >
-            Menu
+            {t('menu')}
           </CustomButton>
         </DialogFooter>
       </DialogContent>
