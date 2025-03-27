@@ -1,4 +1,6 @@
+
 import { SudokuGrid, DifficultyLevel } from './types';
+import { solveSudoku } from './solver';
 
 // Sample puzzles for different difficulty levels
 export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
