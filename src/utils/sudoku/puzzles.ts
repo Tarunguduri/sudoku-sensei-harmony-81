@@ -374,7 +374,7 @@ export const samplePuzzles: Record<DifficultyLevel, SudokuGrid[]> = {
       [null, 1, null, null, null, null, null, null, null],
       [null, null, null, null, null, 8, null, null, null],
     ],
-  ]
+  ],
 };
 
 // Solutions for all puzzles
@@ -421,4 +421,4 @@ export const sampleSolutions: Record<DifficultyLevel, SudokuGrid[]> = {
       [5, 3, 4, 6, 7, 8, 9, 1, 2],
       [6, 7, 2, 1, 9, 5, 3, 4, 8],
       [1, 9, 8, 3, 4, 2, 5, 6, 7],
-      [8, 5, 9, 7, 6, 1, 4, 2,
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
